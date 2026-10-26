@@ -17,8 +17,20 @@ let win = null, store = null, drive = null, driveTimer = null;
 
 const sealS = t => (safeStorage.isEncryptionAvailable() ? 'e:' + safeStorage.encryptString(t).toString('base64') : 'p:' + Buffer.from(t).toString('base64'));
 const unsealS = t => (t.startsWith('e:') ? safeStorage.decryptString(Buffer.from(t.slice(2), 'base64')) : Buffer.from(t.slice(2), 'base64').toString());
+// Google client values: built into the app, or (fallback) read from Desktop\\MrGroom\\google-client.json
+function googleClient() {
+  const ok = v => v && !/^__/.test(v);
+  if (ok(CFG.googleClientId) && ok(CFG.googleClientSecret)) return { id: CFG.googleClientId, secret: CFG.googleClientSecret };
+  try {
+    const cfg = readJson('config.json', {}), root = cfg.root || path.join(app.getPath('desktop'), 'MrGroom');
+    const j = JSON.parse(fs.readFileSync(path.join(root, 'google-client.json'), 'utf8'));
+    if (ok(j.clientId) && ok(j.clientSecret)) return { id: j.clientId, secret: j.clientSecret };
+  } catch (e) { /* none */ }
+  return { id: '', secret: '' };
+}
 function initDrive() {
-  drive = new Drive({ clientId: CFG.googleClientId, clientSecret: CFG.googleClientSecret, seal: sealS, unseal: unsealS,
+  const g = googleClient();
+  drive = new Drive({ clientId: g.id, clientSecret: g.secret, seal: sealS, unseal: unsealS,
     read: () => readJson('drive.json', {}), write: o => writeJson('drive.json', o),
     openUrl: u => { if (/^https:\/\/accounts\.google\.com\//.test(u)) shell.openExternal(u); } });
 }

@@ -41,7 +41,7 @@ class Drive {
   async connect(email) {
     email = String(email || '').trim().toLowerCase();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return { ok: false, error: 'Enter a valid Gmail address.' };
-    if (!this.configured()) return { ok: false, error: 'This build has no Google client ID. (Developer: see BUILD.md, section Google Drive.)' };
+    if (!this.configured()) return { ok: false, error: 'Google Drive linking is not set up in this copy of the program yet. Please contact your supplier.' };
     const verifier = b64u(crypto.randomBytes(32)), challenge = b64u(crypto.createHash('sha256').update(verifier).digest()), state = b64u(crypto.randomBytes(12));
     const code = await new Promise((resolve, reject) => {
       const srv = http.createServer((req, res) => {

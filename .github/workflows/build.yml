@@ -17,10 +17,13 @@ jobs:
           GID: ${{ secrets.GOOGLE_CLIENT_ID }}
           GSEC: ${{ secrets.GOOGLE_CLIENT_SECRET }}
         run: |
-          if (-not $env:GID -or -not $env:GSEC) { Write-Host "Google secrets not set: the build continues without Google Drive."; exit 0 }
+          Write-Host "GOOGLE_CLIENT_ID length: $($env:GID.Length)   GOOGLE_CLIENT_SECRET length: $($env:GSEC.Length)"
+          if (-not $env:GID -or -not $env:GSEC) { Write-Host "ERROR: the repository secrets GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET are missing or empty."; exit 1 }
           $t = Get-Content src/config.js -Raw
           $t = $t.Replace('__GOOGLE_CLIENT_ID__', $env:GID).Replace('__GOOGLE_CLIENT_SECRET__', $env:GSEC)
           [System.IO.File]::WriteAllText("$PWD/src/config.js", $t, (New-Object System.Text.UTF8Encoding($false)))
+          if ((Get-Content src/config.js -Raw) -match '__GOOGLE_CLIENT') { Write-Host "ERROR: placeholders were not replaced."; exit 1 }
+          Write-Host "Google client values inserted."
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run dist
