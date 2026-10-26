@@ -1,0 +1,51 @@
+{
+  "name": "mrgroom-manager",
+  "productName": "Mr GROOM Manager",
+  "version": "1.0.0",
+  "description": "Business manager for coat rental and tailoring shops",
+  "main": "main.js",
+  "author": "Loshan",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "test": "node test/run-tests.js",
+    "prepare-app": "node scripts/prepare-app.js",
+    "prepare-secure": "node scripts/prepare-app.js --obfuscate",
+    "start": "npm run prepare-app && electron .",
+    "dist": "npm run prepare-app && electron-builder --win nsis --publish never",
+    "dist-secure": "npm run prepare-secure && electron-builder --win nsis --publish never"
+  },
+  "devDependencies": {
+    "chart.js": "4.4.1",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "javascript-obfuscator": "^4.1.1"
+  },
+  "build": {
+    "appId": "app.mrgroom.manager",
+    "productName": "Mr GROOM Manager",
+    "copyright": "Copyright \u00a9 Loshan",
+    "asar": true,
+    "files": [
+      "main.js",
+      "preload.js",
+      "src/**",
+      "renderer/**",
+      "build/icon.ico",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Mr GROOM Manager",
+      "deleteAppDataOnUninstall": false
+    }
+  }
+}

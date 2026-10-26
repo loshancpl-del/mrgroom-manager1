@@ -1,0 +1,24 @@
+MR GROOM MANAGER — QUICK GUIDE
+
+Logging in
+  First time: username  admin   password  admin.
+  Please press "Users" and change the admin password. The admin can also add staff users there.
+
+Where is my data?
+  In the folder Desktop\MrGroom .
+  Data\     your live data file
+  Backups\  automatic copies on this computer, every 10 minutes while you work, plus one per day
+
+Google Drive backup (free, off your computer)
+  After the first login the app asks for your Gmail. Press "Link Google Drive", sign in to Google in the
+  browser with the SAME Gmail and press Allow. A backup is then sent to your Drive (folder "Mr GROOM Backups")
+  every day while the app is open and the computer is online.
+  To bring data back: Google Drive button -> Show backups -> Restore.
+
+Every evening press "Close of Sales". It saves a local backup and sends one to Google Drive.
+Optional: File -> "Choose extra local backup folder..." for a copy on a USB stick.
+
+If someone deletes the MrGroom folder by mistake:
+  Open the app. It offers to restore the latest backup. Click "Restore".
+New computer: install, log in, then Google Drive -> Restore (or File -> Restore from a backup file).
+Uninstalling the app does NOT delete your data.
