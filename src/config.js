@@ -5,6 +5,6 @@ module.exports = {
   supportPhone: '',             
   supportEmail: '',
   // Google Drive backup: create these once in Google Cloud Console (see BUILD.md, section 8).
-  googleClientId: '',
-  googleClientSecret: ''
+  googleClientId: '__GOOGLE_CLIENT_ID__',
+  googleClientSecret: '__GOOGLE_CLIENT_SECRET__'
 };

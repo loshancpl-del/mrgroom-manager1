@@ -20,7 +20,7 @@ class Drive {
     this.access = null; this.accessExp = 0;
   }
   save() { this.o.write(this.st); }
-  configured() { return !!(this.o.clientId && this.o.clientSecret); }
+  configured() { return !!(this.o.clientId && this.o.clientSecret) && !/^__/.test(this.o.clientId); }
   connected() { return !!(this.st.token && this.st.email); }
   status() {
     const t = this.now(); let warn = '';

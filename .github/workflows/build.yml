@@ -11,6 +11,16 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - name: Insert Google client values from repository secrets
+        shell: pwsh
+        env:
+          GID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GSEC: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+        run: |
+          if (-not $env:GID -or -not $env:GSEC) { Write-Host "Google secrets not set: the build continues without Google Drive."; exit 0 }
+          $t = Get-Content src/config.js -Raw
+          $t = $t.Replace('__GOOGLE_CLIENT_ID__', $env:GID).Replace('__GOOGLE_CLIENT_SECRET__', $env:GSEC)
+          [System.IO.File]::WriteAllText("$PWD/src/config.js", $t, (New-Object System.Text.UTF8Encoding($false)))
       - run: npm install --no-audit --no-fund
       - run: npm test
       - run: npm run dist
