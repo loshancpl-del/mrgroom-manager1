@@ -125,7 +125,7 @@ test('desktop page starts empty (no sample data) and every screen renders', asyn
   for (const f of ['renderTx', 'renderOut', 'renderInv', 'renderShop', 'renderTail', 'renderExp', 'renderCat', 'renderDay', 'renderMon', 'renderRet', 'initRep']) run(ctx, f + '()');
   run(ctx, '$("pT").value="d";$("pD").value=isoLocal(new Date());genRep();outRep();outCsv();');
   // add an order through the form: it must reach the data folder
-  run(ctx, `$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="Test";$("fCat").value="Coat Rent";$("fPt").value="Cash";$("fCost").value="9000";$("fAdv").value="3000";addTx();`);
+  run(ctx, `$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="Test";$("fCat").value="Coat Rent";$("fRs").value="2026-11-01";$("fRr").value="2026-11-03";$("fPt").value="Cash";$("fCost").value="9000";$("fAdv").value="3000";addTx();`);
   assert.strictEqual(run(ctx, 'rows.length'), 1); assert.ok(saved.includes('crt_rows'));
   assert.strictEqual(JSON.parse(store.crt_rows).length, 1); assert.strictEqual(JSON.parse(store.crt_rows)[0].adv, 3000);
   // Close of Sales uses the automatic backup system
@@ -204,12 +204,12 @@ test('Drive button only for the admin account; orders and sales carry date, time
   const { ctx } = loginCtx(); await run(ctx, 'seedUsers()');
   run(ctx, '$("lgU").value="admin";$("lgP").value="admin"'); await run(ctx, 'doLogin()'); assert.strictEqual(ctx.$$('hDrv').style.display, '');
   run(ctx, 'openUsers()'); run(ctx, '$("usU").value="boss";$("usP").value="pw1234";$("usR").value="admin"'); await run(ctx, 'usAdd()');
-  run(ctx, '$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="Nimal";$("fCat").value="New Coat";$("fPt").value="Cash";$("fCost").value="45000";$("fAdv").value="15000";addTx();');
+  run(ctx, '$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="Nimal";$("fCat").value="Bespoke Coat";$("fPt").value="Cash";$("fCost").value="45000";$("fAdv").value="15000";addTx();');
   assert.strictEqual(run(ctx, 'rows[0].by'), 'admin'); assert.ok(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/.test(run(ctx, 'rows[0].ts')));
   assert.ok(/\d\d:\d\d:\d\d/.test(run(ctx, 'fts(rows[0].ts)'))); assert.ok(/Entered \(date & time\)/.test(ctx.$$('txT').innerHTML));
   assert.ok(/Entered At/.test(run(ctx, 'exportCSV(rows,"x",true)')));
   assert.ok(/\d\d:\d\d:\d\d/.test(run(ctx, 'rcHtml(rows[0])')) && /Time/.test(run(ctx, 'thRc(rows[0])')));
-  run(ctx, 'setStage(1,"Stitching Done")'); assert.match(ctx.$$('waM').value, /your order 0000000001 is ready to collect/);
+  run(ctx, 'setStage(1,"Stitching Done")'); assert.match(String(run(ctx, 'tmText(rows[0],3)')), /ready to collect[\s\S]*0000000001[\s\S]*MO-000001[\s\S]*Mr GROOM[\s\S]*0719231425/);
   run(ctx, 'renderTail()'); assert.ok(/Send WhatsApp/.test(ctx.$$('ntL').innerHTML));
   run(ctx, 'logout()'); run(ctx, '$("lgU").value="boss";$("lgP").value="pw1234"'); await run(ctx, 'doLogin()');
   assert.strictEqual(run(ctx, 'ME.role'), 'admin'); assert.strictEqual(ctx.$$('hDrv').style.display, 'none'); run(ctx, 'openDrive()');
@@ -218,7 +218,7 @@ test('Drive button only for the admin account; orders and sales carry date, time
 test('reset data: password is "admin", nothing about it is shown, users survive the reset', async () => {
   const { ctx, store } = loginCtx(); await run(ctx, 'seedUsers()');
   run(ctx, '$("lgU").value="admin";$("lgP").value="admin"'); await run(ctx, 'doLogin()');
-  run(ctx, '$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="T";$("fCat").value="Coat Rent";$("fPt").value="Cash";$("fCost").value="9000";$("fAdv").value="3000";addTx();');
+  run(ctx, '$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="T";$("fCat").value="Coat Rent";$("fRs").value="2026-11-01";$("fRr").value="2026-11-03";$("fPt").value="Cash";$("fCost").value="9000";$("fAdv").value="3000";addTx();');
   assert.strictEqual(run(ctx, 'rows.length'), 1);
   run(ctx, '$("rsBk").checked=false;$("rsPw").value="Reset"'); run(ctx, 'doReset()'); assert.strictEqual(run(ctx, 'rows.length'), 1); assert.strictEqual(ctx.$$('rsE').textContent, 'Wrong password.');
   run(ctx, '$("rsPw").value="admin"'); run(ctx, 'doReset()'); assert.strictEqual(run(ctx, 'rows.length'), 0); assert.strictEqual(JSON.parse(store.crt_users).length, 1);

@@ -101,6 +101,20 @@ input:focus,select:focus,textarea:focus{box-shadow:0 0 0 3px rgba(42,157,143,.28
 .bar{animation:slideDown .5s both}
 #toast{animation:fadeUp .3s both}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+.req{color:var(--bad);font-weight:800}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip2{display:inline-flex;align-items:center;gap:6px;background:var(--zebra);border:1px solid var(--line);border-radius:99px;padding:3px 6px 3px 12px;font-size:13px;font-weight:600}
+.chip2 button{border:0;background:var(--bad);color:#fff;border-radius:50%;width:20px;height:20px;line-height:18px;cursor:pointer;font-weight:800;padding:0}
+.opb{display:none;font-size:11px;margin-left:6px;padding:0;background:none;border:0;color:var(--teal);cursor:pointer;text-decoration:underline;font-weight:600}
+body.adm .opb{display:inline}
+.seg{display:inline-flex;border:1px solid #4a5578;border-radius:8px;overflow:hidden}
+.seg button{background:none;border:0;color:#c9d2e8;padding:8px 12px;font:inherit;font-weight:600;cursor:pointer}
+.seg button.on{background:#d4202e;color:#fff}
+.wab{background:#1faa59!important;color:#fff!important;border:0;padding:6px 12px;border-radius:8px;font-weight:700;cursor:pointer}
+.th.a4{width:auto;max-width:190mm;font:13px/1.5 Arial,sans-serif;font-weight:400}
+.th.a4 table{width:100%;border-collapse:collapse;min-width:0;margin:6px 0 12px}.th.a4 td,.th.a4 th{border:1px solid #888;padding:5px 8px;font-size:13px;color:#000;background:#fff;white-space:normal}
+.th.a4 th{background:#eee;text-align:left}.th.a4 h3{margin:10px 0 2px;font-size:15px}
 #lg{position:fixed;inset:0;z-index:100;background:var(--head);display:flex;align-items:center;justify-content:center;padding:20px}
 #lg.off{display:none}
 #lg .card{width:100%;max-width:360px;text-align:center}
@@ -131,6 +145,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
     <div class="sp"></div>
     <button class="btn alt" style="color:#fff;border-color:#4a5578" onclick="openExport()">Export CSV</button>
     <button class="btn" onclick="openClose()">Close of Sales</button>
+    <span class="seg" id="thSeg"><button id="thL" onclick="setTheme('light')">☀ Light</button><button id="thD" onclick="setTheme('dark')">🌙 Dark</button></span>
     <button class="btn alt" id="hDrv" style="display:none;color:#fff;border-color:#4a5578" onclick="openDrive()">Google Drive</button>
     <button class="btn alt" id="hUsr" style="color:#fff;border-color:#4a5578" onclick="openUsers()">Users</button>
     <button class="btn alt" id="hRst" style="color:#fff;border-color:#4a5578" onclick="openReset()">Reset data</button>
@@ -165,21 +180,22 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
     <h2 id="fTitle">New Transaction</h2><div id="clk" style="font-weight:700;color:var(--mute);font-size:13px;margin:-6px 0 10px;font-variant-numeric:tabular-nums"></div>
     <div class="grid">
       <div><label>Date</label><input type="date" id="fDate"></div>
-      <div><label>Phone Number</label><input id="fPhone" inputmode="numeric" maxlength="10" placeholder="0771234567"></div>
-      <div><label>Customer Name (auto-lookup)</label><input id="fName" placeholder="Auto-fills for returning customers"></div>
-      <div><label>Category</label><select id="fCat" onchange="catChg()"></select></div>
+      <div><label>Phone Number <span class="req">*</span></label><input id="fPhone" inputmode="numeric" maxlength="10" placeholder="0771234567"></div>
+      <div><label>Customer Name <span class="req">*</span> (auto-lookup)</label><input id="fName" placeholder="Auto-fills for returning customers"></div>
+      <div><label>Category <button class="opb" onclick="openOpts('cat')">Edit list</button></label><select id="fCat" onchange="catChg()"></select></div>
       <div id="fCatNw" style="display:none"><label>New category name</label><input id="fCatN" placeholder="e.g. Suit Rent"></div>
-      <div><label>Rental Start</label><input type="date" id="fRs"></div>
-      <div><label>Rental Return</label><input type="date" id="fRr"></div>
-      <div><label>Payment Type</label><select id="fPt"><option>Cash</option><option>Card</option><option>Bank Transfer</option><option>Credit</option></select></div>
-      <div><label>Cost (Rs.)</label><input type="number" min="0" id="fCost"></div>
+      <div><label>Rental Start <span class="req rq">*</span></label><input type="date" id="fRs" onchange="itRender()"></div>
+      <div><label>Rental Return <span class="req rq">*</span></label><input type="date" id="fRr" onchange="itRender()"></div>
+      <div><label>Payment Type <button class="opb" onclick="openOpts('pt')">Edit list</button></label><select id="fPt"></select></div>
+      <div><label>Cost (Rs.) <span class="req">*</span></label><input type="number" min="0" id="fCost"></div>
       <div><label>Additional charges (Rs.)</label><input type="number" min="0" id="fXc" placeholder="Optional extra amount"></div>
       <div><label>Advance (Rs.)</label><input type="number" min="0" id="fAdv"></div>
       <div><label>Balance (auto)</label><input id="fBal" class="auto" readonly></div>
       <div><label>Payment Received (auto)</label><input id="fStat" class="auto" readonly></div>
       <div><label>Payment Received Date</label><input type="date" id="fPd"></div>
-      <div><label>Items (IDs, comma-separated)</label><input id="fIt" list="itList" placeholder="C-001, S-002" autocomplete="off"><datalist id="itList"></datalist></div>
+      <div style="grid-column:1/-1"><label>Items (optional)</label><select id="fItPick" onchange="itAdd(this.value)" style="max-width:420px"></select><input type="hidden" id="fIt"><div id="fItChips" class="chips"></div><div class="note" style="margin-top:4px">Choose an item from the list. It is added at once and the list is ready for the next item. Items already booked for the chosen dates are marked.</div></div>
     </div>
+    <div class="note"><span class="req">*</span> Required. Rental dates are not needed for Bespoke Coat (stitching) orders.</div>
     <div class="row"><button class="btn" id="fBtn" onclick="addTx()">Add Transaction</button><button class="btn alt" id="fCancel" style="display:none" onclick="cancelEdit()">Cancel edit</button><span id="msg" class="err"></span><button class="btn alt chip" id="gm" style="display:none" onclick="openMs(NC)">Add measurements now</button></div>
   </div>
   <div class="card"><h2>All Transactions</h2><div class="wrap"><table id="txT"></table></div>
@@ -187,7 +203,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
 </section>
 <section id="srch">
   <div class="card"><h2>Search Order</h2>
-    <input id="sQ" inputmode="numeric" placeholder="Order number (e.g. 0000000007) or mobile number (e.g. 0771234567)" style="font-size:16px;padding:12px">
+    <input id="sQ" inputmode="numeric" placeholder="Order number (0000000007), measurement order (MO-000001) or mobile number (0771234567)" style="font-size:16px;padding:12px">
     <div class="note">Search by order number or mobile number (full number, or any 4+ digits of it). Cancelled orders are excluded from all sales figures.</div></div>
   <div id="sRes"></div>
 </section>
@@ -203,7 +219,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
 </section>
 <section id="inv">
   <div class="card"><h2>Add Inventory Item</h2>
-    <div class="grid"><div><label>Item type</label><select id="iT" onchange="typeChg()"></select></div>
+    <div class="grid"><div><label>Item type <button class="opb" onclick="openOpts('itype')">Edit list</button></label><select id="iT" onchange="typeChg()"></select></div>
     <div id="iNw" style="display:none"><label>New item type</label><input id="iN" placeholder="e.g. Waistcoat, Cufflinks"></div>
     <div><label>Size</label><input id="iS" placeholder="e.g. 40, UK 9, M"></div>
     <div><label>Colour</label><input id="iC" placeholder="e.g. Navy, Black"></div>
@@ -218,8 +234,8 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
 </section>
 <section id="tail"><div class="kpis" id="tK"></div>
   <div class="card" id="ntC"><h2>Notify customers (WhatsApp)</h2><div id="ntL"></div><div class="note">Click <b>Send WhatsApp</b> to open a ready message such as “your order is ready to collect”. Check it and press send in WhatsApp.</div></div>
-  <div class="card"><h2>New Coat orders</h2><div class="wrap"><table id="tlT"></table></div>
-  <div class="note">Every order saved with the category New Coat appears here automatically. Change the stage or delivery date in the table. When the stage becomes Stitching Done, a WhatsApp message to the customer opens, ready to send.</div></div>
+  <div class="card"><h2>Bespoke Coat orders <button class="opb" onclick="openOpts('stg')">Edit status list</button></h2><div class="wrap"><table id="tlT"></table></div>
+  <div class="note">Every order saved with the category Bespoke Coat appears here automatically. Each Bespoke Coat order gets its own Measurement Order number (MO-…). Choose the Action (status), pick one of the 5 messages and press the green WhatsApp button: the customer’s WhatsApp opens with the message typed, ready to send.</div></div>
   <div class="card"><h2>Add customer</h2>
   <div class="grid"><div><label>Customer mobile number</label><input id="mcP" inputmode="numeric" maxlength="10" placeholder="0771234567" oninput="mcLookup()"></div>
   <div><label>Customer name</label><input id="mcN" placeholder="Fills in automatically for existing customers"></div></div>
@@ -240,13 +256,13 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
     <div class="wrap" style="margin-top:12px"><table id="cartT"></table></div>
     <div class="grid" style="margin-top:12px">
       <div><label>Discount (Rs.)</label><input type="number" min="0" id="sDisc" value="0" oninput="cartTot()"></div>
-      <div><label>Payment method</label><select id="sPm"><option>Cash</option><option>Card</option><option>Bank Transfer</option></select></div>
+      <div><label>Payment method <button class="opb" onclick="openOpts('spm')">Edit list</button></label><select id="sPm"></select></div>
       <div><label>Customer name (optional)</label><input id="sCn"></div>
       <div><label>Phone (optional)</label><input id="sCp" inputmode="numeric" maxlength="10"></div>
       <div><label>Total to pay</label><input id="sTot" class="auto" readonly></div></div>
     <div class="row"><button class="btn" onclick="doSale()">Complete sale &amp; show bill</button></div></div>
   <div class="card"><h2>Add Product to Stock</h2>
-    <div class="grid"><div><label>Type</label><select id="spT" onchange="stChg()"></select></div>
+    <div class="grid"><div><label>Type <button class="opb" onclick="openOpts('stype')">Edit list</button></label><select id="spT" onchange="stChg()"></select></div>
     <div id="spNw" style="display:none"><label>New product type</label><input id="spN" placeholder="e.g. Belt, Wallet"></div>
     <div><label>Brand</label><input id="spB" placeholder="e.g. Urban Edge"></div>
     <div><label>Size</label><input id="spS" placeholder="e.g. M, UK 9, Free"></div>
@@ -265,7 +281,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
   <div class="kpi" style="background:var(--red)"><small>TOTAL EXPENSES</small><b id="x2"></b></div>
   <div class="kpi" style="background:#1b7f5a"><small>NET PROFIT</small><b id="x3"></b></div></div>
   <div class="card"><h2>Add Expense</h2><div class="grid">
-    <div><label>Date</label><input type="date" id="xD"></div><div><label>Category</label><select id="xC" onchange="ecChg()"></select></div>
+    <div><label>Date</label><input type="date" id="xD"></div><div><label>Category <button class="opb" onclick="openOpts('ecat')">Edit list</button></label><select id="xC" onchange="ecChg()"></select></div>
     <div id="xNw" style="display:none"><label>New category</label><input id="xCN" placeholder="e.g. Packaging"></div>
     <div><label>Description</label><input id="xN"></div><div><label>Amount (Rs.)</label><input type="number" min="1" id="xA"></div></div>
     <div class="row"><button class="btn" onclick="addExp()">Add expense</button><span id="xM" class="err"></span></div></div>
@@ -296,11 +312,20 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
 </main>
 <div id="mq" class="modal" onclick="if(event.target===this)msClose()"><div class="card">
   <h2>Measurements — <span id="msT"></span></h2>
-  <div class="grid" style="max-width:300px"><div><label>Garment</label><select id="msGs" onchange="msSwitch()"></select></div></div>
+  <div class="grid" style="max-width:560px"><div><label>Garment <button class="opb" onclick="openOpts('gar')">Edit list</button></label><select id="msGs" onchange="msSwitch()"></select></div><div><label>Unit</label><select id="msU" onchange="msUnit()"><option value="in">Inches (in)</option><option value="cm">Centimetres (cm)</option></select></div></div>
   <div class="note" id="msSaved"></div>
   <div class="grid" id="msG" style="margin-top:12px"></div>
   <div style="margin-top:12px"><label>Notes (all garments)</label><input id="mfN"></div>
-  <div class="row"><button class="btn" onclick="msClose()">Save &amp; Close</button></div>
+  <div class="row"><button class="btn" onclick="msClose()">Save &amp; Close</button><button class="btn alt" onclick="msPrint()">Print measurements</button><button class="btn alt" onclick="pdfDo(msDoc(),0)">Download PDF</button><button class="btn alt" onclick="pdfDo(msDoc(),1)">Share PDF</button></div>
+</div></div>
+<div id="opm" class="modal" onclick="if(event.target===this)closeM('opm')"><div class="card">
+  <h2 id="opT">Edit list</h2><div class="note" id="opN"></div>
+  <table class="utb" id="opL" style="margin-top:8px"></table>
+  <div class="row"><input id="opA" placeholder="New option" style="max-width:260px" onkeydown="if(event.key==='Enter')opAdd()"><button class="btn" onclick="opAdd()">Add</button></div>
+  <div id="opF" style="display:none"><hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><h3 style="margin:0 0 6px">Measurement fields for <span id="opFg"></span></h3><div class="chips" id="opFl"></div>
+    <div class="row"><input id="opFa" placeholder="New measurement field (e.g. Collar)" style="max-width:260px" onkeydown="if(event.key==='Enter')opFAdd()"><button class="btn" onclick="opFAdd()">Add field</button></div></div>
+  <div id="opE" class="err" style="margin-top:8px"></div>
+  <div class="row"><button class="btn alt" onclick="closeM('opm')">Close</button></div>
 </div></div>
 <div id="rst" class="modal" onclick="if(event.target===this)closeM('rst')"><div class="card">
   <h2 style="color:var(--bad)">Reset all data</h2>
@@ -311,7 +336,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
   <div class="row"><button class="btn bad" onclick="doReset()">Erase everything</button><button class="btn alt" onclick="closeM('rst')">Cancel</button></div>
 </div></div>
 
-<div id="lg"><div class="card">
+<div id="lg"><div style="position:absolute;top:14px;right:14px"><span class="seg" style="background:#1b2440"><button id="thL2" onclick="setTheme('light')">☀ Light</button><button id="thD2" onclick="setTheme('dark')">🌙 Dark</button></span></div><div class="card">
   <img id="lgLogo" alt="Mr GROOM">
   <h2>Log in</h2>
   <label>Username</label><input id="lgU" autocomplete="username" onkeydown="if(event.key==='Enter')$('lgP').focus()">
@@ -337,6 +362,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
 </div></div>
 <div id="gdm" class="modal" onclick="if(event.target===this)closeM('gdm')"><div class="card">
   <h2>Google Drive backup</h2><div id="gdSt" class="note"></div>
+  <div id="gdWeb" style="display:none"><p>Automatic daily upload and one-click restore are in the <b>desktop program</b> (Mr GROOM Manager). In the browser you can back up by hand:</p><div class="row"><button class="btn" onclick="gdWebDl()">Download backup file</button><a class="btn alt" href="https://drive.google.com/drive/my-drive" target="_blank" rel="noopener" style="text-decoration:none">Open Google Drive</a></div><p class="note">Download the backup file, then drag it into your Google Drive folder “Mr GROOM Backups”.</p><div class="row"><button class="btn alt" onclick="closeM('gdm')">Close</button></div></div>
   <div id="gdOff">
     <label>Your Gmail address</label><input id="gdEm" type="email" placeholder="name@gmail.com" autocomplete="off">
     <p class="note">A Google sign-in page opens in your web browser. Sign in with this same Gmail and press Allow. The app can only see its own folder “Mr GROOM Backups” in your Drive.</p>
@@ -404,7 +430,7 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
   </div>
 </div>
 <script>
-let CATS=["Coat Rent","New Coat","Shoe Rent","Tie Rent","Full Wedding Coat Rent","Other Customs"];
+let CATS=["Coat Rent","Bespoke Coat","Shoe Rent","Tie Rent","Full Wedding Coat Rent","Other Customs"];
 const MN=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 const $=id=>document.getElementById(id);
 const rs=n=>"Rs. "+Math.round(n).toLocaleString("en-US");
@@ -421,12 +447,12 @@ const SIT={2:["C-001"],3:["T-001"],4:["C-003","S-001","T-002"],5:["S-002"],7:["C
 function smp(r){const q=SAMPLE[r.id-1];return !!q&&q.date===r.date&&q.phone===r.phone}
 function sync(r){const p=r.pays||[];r.adv=p.reduce((t,x)=>t+x.a,0);r.pd=r.cost>0&&r.adv>=r.cost&&p.length?p[p.length-1].d:""}
 function norm(r){
-  if(r.cat==="Coat Stitch Income")r.cat="New Coat";
+  if(r.cat==="Coat Stitch Income"||r.cat==="New Coat")r.cat="Bespoke Coat";
   if(r.stage==="Ready")r.stage="Stitching Done";
   if(!r.pays)r.pays=r.adv>0?[{d:r.pd||r.date,a:r.adv,k:r.adv>=r.cost?"payment":"advance",m:r.pt}]:[];
   if(r.it===undefined)r.it=smp(r)&&SIT[r.id]||[];
   if(r.dep===undefined)r.dep=smp(r)&&SDP[r.id]||0;
-  if(r.cat==="New Coat"&&r.stage===undefined){const q=smp(r)&&SST[r.id];r.stage=q?q[0]:"Measured";r.deliv=q?q[1]:""}
+  if(r.cat==="Bespoke Coat"&&r.stage===undefined){const q=smp(r)&&SST[r.id];r.stage=q?q[0]:"Measured";r.deliv=q?q[1]:""}
   sync(r);
 }
 rows.forEach(norm);
@@ -489,7 +515,7 @@ function calc(){const c=(+$("fCost").value||0)+(+$("fXc").value||0),a=+$("fAdv")
 $("fPhone").oninput=e=>{e.target.value=e.target.value.replace(/\D/g,"");const n=custName(e.target.value);if(n)$("fName").value=n};
 function addTx(){
   const g=i=>$(i).value.trim(),cost=+g("fCost"),adv=+g("fAdv")||0;
-  const err=!g("fDate")?"Please pick a date.":!/^\d{10}$/.test(g("fPhone"))?"Phone must be 10 digits.":!g("fName")?"Enter the customer name.":!(cost>0)?"Enter the cost.":adv>cost?"Advance cannot exceed cost.":"";
+  const err=!g("fDate")?"Please pick a date.":!/^\d{10}$/.test(g("fPhone"))?"Mobile number is required (10 digits).":!g("fName")?"Customer name is required.":!(cost>0)?"Cost is required.":(catVal!=="Bespoke Coat"&&!g("fRs"))?"Rental start date is required.":(catVal!=="Bespoke Coat"&&!g("fRr"))?"Rental return date is required.":adv>cost?"Advance cannot exceed cost.":"";
   $("msg").textContent=err;if(err)return;
   const o={date:g("fDate"),phone:g("fPhone"),name:g("fName"),cat:g("fCat"),rs:g("fRs"),rr:g("fRr"),pt:g("fPt"),cost,adv,pd:g("fPd")||(adv>=cost?g("fDate"):"")};
   if(editId)saveEdit(o);else{o.id=rows.reduce((m,r)=>Math.max(m,r.id),0)+1;rows.push(o)}
@@ -497,9 +523,9 @@ function addTx(){
 }
 function del(b){if(b.dataset.sure){rows=rows.filter(r=>r.id!==+b.dataset.id);save();renderTx()}else{b.dataset.sure=1;b.textContent="Sure?"}}
 function exportCSV(list,name,ret){list=list||rows;
-  const h=["Date","Order Number","Phone Number","Customer Name","Category","Rental Start","Rental Return","Payment Type","Payment Received","Payment Received Date","Cost","Advance","Balance Amount","Entered At","Entered By"];
+  const h=["Date","Order Number","Phone Number","Customer Name","Category","Rental Start","Rental Return","Payment Type","Payment Received","Payment Received Date","Cost","Advance","Balance Amount","Entered At","Entered By","Measurement Order Number"];
   const q=v=>'"'+String(v).replace(/"/g,'""')+'"';
-  const L=[h.map(q).join(",")].concat(list.map(r=>[r.date,pad(r.id),r.phone,r.name,r.cat,r.rs,r.rr,r.pt,status(r)[0],pdate(r),r.cost,r.adv,bal(r),fts(entered(r)),r.by||""].map(q).join(",")));
+  const L=[h.map(q).join(",")].concat(list.map(r=>[r.date,pad(r.id),r.phone,r.name,r.cat,r.rs,r.rr,r.pt,status(r)[0],pdate(r),r.cost,r.adv,bal(r),fts(entered(r)),r.by||"",r.mo||""].map(q).join(",")));
   if(ret)return L.join("\n");const a=document.createElement("a");a.href="data:text/csv;charset=utf-8,"+encodeURIComponent("\uFEFF"+L.join("\n"));a.download=(name||"transactions")+".csv";a.click();
 }
 let found=[];
@@ -625,7 +651,7 @@ function startEdit(id){
   $("fTitle").textContent="Edit Order "+pad(id);$("fBtn").textContent="Save Changes";$("fCancel").style.display="inline-block";
   scrollTo({top:0,behavior:"smooth"});
 }
-function endEdit(){editId=null;$("fDate").value=isoLocal(new Date());$("fTitle").textContent="New Transaction";$("fBtn").textContent="Add Transaction";$("fCancel").style.display="none"}
+function endEdit(){editId=null;try{itRender()}catch(e){}$("fDate").value=isoLocal(new Date());$("fTitle").textContent="New Transaction";$("fBtn").textContent="Add Transaction";$("fCancel").style.display="none"}
 function cancelEdit(){["fPhone","fName","fRs","fRr","fCost","fAdv","fPd"].forEach(i=>$(i).value="");endEdit();calc();$("msg").textContent=""}
 const hist=r=>r.log&&r.log.length?`<div class="note" style="margin-top:12px"><b>Change history</b><br>${r.log.map(l=>fts(l.t)+(l.u?" ["+esc(l.u)+"]":"")+" — "+esc(l.c)).join("<br>")}</div>`:"";
 const BIZ={name:"Mr GROOM",tag:"Your Style Today",phones:["0719231425","0707231425"],email:"roshanshiranthe@gmail.com",addr:"110/110, Main Street, Kegalle",owner:"K A Roshan Amarasinghe, Proprietor",logo:"data:image/png;base64,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"};
@@ -633,7 +659,7 @@ const bizHead=t=>`<div style="background:#313332;color:#fff;padding:10px 14px;di
 const rcHtml=r=>{
   const s=status(r),row=(k,v)=>`<tr><td style="padding:3px 0;border:0;color:#555">${k}</td><td style="padding:3px 0;border:0;text-align:right;font-weight:600">${v||"—"}</td></tr>`,tb="width:100%;min-width:0;border-collapse:collapse";
   return `<div style="font:14px Arial,sans-serif;max-width:420px;margin:auto;background:#fff;color:#111;padding:20px;border:1px solid #ccc">${bizHead("Order Receipt")}<hr>
-<table style="${tb}">${row("Order No.",pad(r.id))}${row("Date",fd(r.date))}${row("Entered at",fts(entered(r)))}${row("Customer",esc(r.name))}${row("Phone",r.phone)}${row("Category",r.cat)}${row("Rental Start",fd(r.rs))}${row("Rental Return",fd(r.rr))}${row("Payment Type",r.pt)}</table><hr>
+<table style="${tb}">${row("Order No.",pad(r.id))}${r.mo?row("Measurement Order No.",r.mo):""}${row("Date",fd(r.date))}${row("Entered at",fts(entered(r)))}${row("Customer",esc(r.name))}${row("Phone",r.phone)}${row("Category",r.cat)}${row("Rental Start",fd(r.rs))}${row("Rental Return",fd(r.rr))}${row("Payment Type",r.pt)}</table><hr>
 <table style="${tb}">${row("Total Cost",rs(r.cost))}${row("Advance Paid",rs(r.adv))}${row("Status",s[0])}${row("Payment Received Date",fd(pdate(r)))}</table><hr>
 <div style="text-align:center;color:#555;font-size:12px">Please return rented items on or before the return date.<br>Thank you for choosing ${BIZ.name} — ${BIZ.tag}!<br>Call us: ${BIZ.phones.join(" / ")}<br>Printed ${fd(isoLocal(new Date()))}</div></div>`;
 };
@@ -645,7 +671,7 @@ let THDOC=null;
 const thR=(a,b,cl)=>`<div class="r${cl?" "+cl:""}"><span>${a}</span><span>${b}</span></div>`;
 const thHead=t=>`<div class="c big">${BIZ.name}</div><div class="c">${BIZ.tag}</div><div class="c">${BIZ.addr}</div><div class="c">Tel: ${BIZ.phones.join(" / ")}</div><hr><div class="c b">${t}</div><hr>`;
 const thFoot=m=>`<hr><div class="c">${m}</div><div class="c">Call: ${BIZ.phones.join(" / ")}</div><div class="c">Printed ${fd(isoLocal(new Date()))} ${new Date().toTimeString().slice(0,5)}</div><div class="c">.</div>`;
-function thRc(r){const s=status(r);return thHead("ORDER RECEIPT")+thR("Order No.",pad(r.id))+thR("Date",fd(r.date))+thR("Time",entered(r)?new Date(entered(r)).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"—")+thR("Customer",esc(r.name))+thR("Phone",r.phone)+thR("Category",esc(r.cat))
+function thRc(r){const s=status(r);return thHead("ORDER RECEIPT")+thR("Order No.",pad(r.id))+(r.mo?thR("Meas. Order",r.mo):"")+thR("Date",fd(r.date))+thR("Time",entered(r)?new Date(entered(r)).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"}):"—")+thR("Customer",esc(r.name))+thR("Phone",r.phone)+thR("Category",esc(r.cat))
   +thR("Rental start",fd(r.rs))+thR("Return by",fd(r.rr))+thR("Payment",r.pt)+"<hr>"+thR("Total cost",rs(r.cost))+thR("Advance paid",rs(r.adv))
   +thR("BALANCE DUE",rs(Math.max(0,r.cost-r.adv)),"b big")+thR("Status",s[0])+(pdate(r)?thR("Paid on",fd(pdate(r))):"")
   +thFoot("Please return items on or before the return date.<br>Thank you! "+BIZ.tag)}
@@ -681,7 +707,7 @@ function retLists(){
   return{t,od:out.filter(r=>r.rr<t).sort(by("rr")),due:out.filter(r=>r.rr>=t&&r.rr<=d3).sort(by("rr")),pk:L.filter(r=>r.rs&&!r.item&&r.rs>=t&&r.rs<=d3).sort(by("rs"))};
 }
 function badge(){const n=retLists().od.length;$("rtBtn").textContent="Overdue & Pickups"+(n?" ("+n+")":"");
-  try{const m=live().filter(r=>r.cat==="New Coat"&&r.stage==="Stitching Done"&&!r.notified).length,b=document.querySelector('#nav [data-t="tail"]');if(b)b.textContent="Measurements"+(m?" ("+m+")":"")}catch(e){}}
+  try{const m=live().filter(r=>r.cat==="Bespoke Coat"&&r.stage==="Stitching Done"&&!r.notified).length,b=document.querySelector('#nav [data-t="tail"]');if(b)b.textContent="Measurements"+(m?" ("+m+")":"")}catch(e){}}
 function ret(id){const r=rows.find(x=>x.id===id);if(!r)return;r.item=isoLocal(new Date());save();renderRet()}
 function renderRet(){
   const {t,od,due,pk}=retLists(),dd=(a,b)=>Math.round((Date.parse(a)-Date.parse(b))/864e5);
@@ -706,10 +732,10 @@ const itLbl=v=>[v.size,v.color].filter(Boolean).join(" · ");
 function migX(){INV.forEach(v=>{if(v.color===undefined){if(v.type==="Tie"){v.color=v.size;v.size=""}else v.color=""}});
   Object.values(CU).forEach(c=>{if(c.m&&!c.g){c.g={Coat:c.m};delete c.m}})}
 migX();
-const PM=["Cash","Card","Bank Transfer","Credit"],STG=["Measured","Stitching","Fitting","Stitching Done","Delivered"];
+const PM=ld("crt_pm",null)||["Cash","Card","Bank Transfer","Credit"],SPM=ld("crt_spm",null)||["Cash","Card","Bank Transfer"],CORE_STG=["Measured","Stitching","Fitting","Stitching Done","Delivered"],STGX=ld("crt_stgx",null)||[],STG=[...CORE_STG,...(ld("crt_stgx",null)||[])];
 let ECAT=ld("crt_ecat",null)||["Fabric","Rent","Salaries","Utilities","Transport","Repairs & Cleaning","Other"];
 const ecats=()=>[...new Set([...ECAT,...EXP.map(e=>e.c)])];
-function fillEc(){const sel=$("xC"),cur=sel.value;sel.innerHTML=ecats().map(c=>`<option>${esc(c)}</option>`).join("")+`<option value="__new">➕ Add a new category…</option>`;if(cur&&(ecats().includes(cur)||cur==="__new"))sel.value=cur;ecChg()}
+function fillEc(){const sel=$("xC"),cur=sel.value;sel.innerHTML=ecatsPick().map(c=>`<option>${esc(c)}</option>`).join("")+`<option value="__new">➕ Add a new category…</option>`;if(cur&&(ecatsPick().includes(cur)||cur==="__new"))sel.value=cur;ecChg()}
 function ecChg(){$("xNw").style.display=$("xC").value==="__new"?"":"none"}
 const fts=t=>{if(!t)return"—";const d=new Date(t);if(isNaN(d))return"—";return fd(isoLocal(d))+" "+d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit",second:"2-digit"})};
 const meName=()=>(typeof ME!=="undefined"&&ME)?ME.user:"";
@@ -747,8 +773,8 @@ function depBack(id){const r=rows.find(x=>x.id===id);r.depBack=isoLocal(new Date
 const card2=r=>{
   const s=status(r),paid=r.adv>=r.cost,f=(k,v)=>`<div><label>${k}</label><div>${v||"—"}</div></div>`;
   const pl=(r.pays||[]).map(p=>`<tr><td>${fd(p.d)}</td><td>${p.k==="refund"?"Refund":p.k==="advance"?"Advance":"Payment"}</td><td>${p.m}</td><td class="n">${rs(p.a)}</td></tr>`).join("")||`<tr><td colspan="4">No payments yet</td></tr>`;
-  return `<div class="card"><h2>Order ${pad(r.id)} <span class="pill ${s[1]}">${s[0]}</span>${r.item?` <span class="pill full">Item received ${fd(r.item)}</span>`:""}${r.stage?` <span class="pill adv">${r.stage}</span>`:""}</h2>
-  <div class="grid">${f("Date",fd(r.date))}${f("Entered at",fts(entered(r))+(r.by?" · "+esc(r.by):""))}${f("Customer",esc(r.name))}${f("Phone",r.phone)}${f("Category",r.cat)}${f("Items",(r.it||[]).join(", "))}${f("Rental Start",fd(r.rs))}${f("Rental Return",fd(r.rr))}${f("Payment Type",r.pt)}${f("Cost",rs(r.cost)+(r.late?` (incl. late fee ${rs(r.late)})`:""))}${f("Received",rs(r.adv))}${(r.extras||[]).length?f("Additional charges",(r.extras||[]).map(e=>rs(e.a)+(e.n?" ("+esc(e.n)+")":"")).join("; ")):""}${f("Balance",rs(bal(r)))}${f("Payment Received Date",fd(pdate(r)))}${r.cx&&r.adv>0?f("Refund due",rs(r.adv)):""}</div>
+  return `<div class="card"><h2>Order ${pad(r.id)} <span class="pill ${s[1]}">${s[0]}</span>${r.item?` <span class="pill full">Item received ${fd(r.item)}</span>`:""}${r.stage?` <span class="pill adv">${stl(r.stage)}</span>`:""}${r.mo?` <span class="pill full">${r.mo}</span>`:""}</h2>
+  <div class="grid">${f("Date",fd(r.date))}${f("Entered at",fts(entered(r))+(r.by?" · "+esc(r.by):""))}${f("Customer",esc(r.name))}${f("Phone",r.phone)}${r.mo?f("Measurement order no.",`<b>${r.mo}</b>`):""}${f("Category",r.cat)}${f("Items",(r.it||[]).join(", "))}${f("Rental Start",fd(r.rs))}${f("Rental Return",fd(r.rr))}${f("Payment Type",r.pt)}${f("Cost",rs(r.cost)+(r.late?` (incl. late fee ${rs(r.late)})`:""))}${f("Received",rs(r.adv))}${(r.extras||[]).length?f("Additional charges",(r.extras||[]).map(e=>rs(e.a)+(e.n?" ("+esc(e.n)+")":"")).join("; ")):""}${f("Balance",rs(bal(r)))}${f("Payment Received Date",fd(pdate(r)))}${r.cx&&r.adv>0?f("Refund due",rs(r.adv)):""}</div>
   <h2 style="margin-top:16px">Payment history</h2><div class="wrap"><table style="min-width:0"><thead><tr><th>Date</th><th>Type</th><th>Method</th><th class="n">Amount</th></tr></thead><tbody>${pl}</tbody></table></div>
   <div class="row"><input id="pa${r.id}" type="number" min="1" placeholder="Amount (Rs.)" style="max-width:150px"><select id="pm${r.id}" style="max-width:150px">${PM.map(x=>`<option>${x}</option>`).join("")}</select>
   <button class="btn" ${r.cx?"disabled":""} onclick="payUI(${r.id},'payment')">Add payment</button><button class="btn alt" ${r.adv>0?"":"disabled"} onclick="payUI(${r.id},'refund')">Refund</button><span class="err" id="pe${r.id}"></span></div>
@@ -771,31 +797,31 @@ function addTx(){
   const g=i=>$(i).value.trim(),xc=editId?0:Math.max(0,+g("fXc")||0),cost=(+g("fCost")||0)+xc,adv=+g("fAdv")||0,it=g("fIt").toUpperCase().split(/[\s,]+/).filter(Boolean);
   let catVal=g("fCat"),catErr="";if(catVal==="__new"){catVal=g("fCatN");if(!catVal)catErr="Enter the new category name.";else{catVal=catVal[0].toUpperCase()+catVal.slice(1);const ex=catsAll().find(x=>x.toLowerCase()===catVal.toLowerCase());if(ex)catVal=ex}}
   const bad=it.filter(x=>!INV.some(v=>v.id===x)),clash=conflicts(it,g("fRs"),g("fRr"),editId);
-  let err=catErr?catErr:!g("fDate")?"Please pick a date.":!/^\d{10}$/.test(g("fPhone"))?"Phone must be 10 digits.":!g("fName")?"Enter the customer name.":!(cost>0)?"Enter the cost.":(!editId&&adv>cost)?"Advance cannot exceed cost.":bad.length?"Unknown item ID: "+bad.join(", ")+" (see the Inventory tab).":(g("fRs")&&g("fRr")&&g("fRr")<g("fRs"))?"Return date is before the start date.":"";
+  let err=catErr?catErr:!g("fDate")?"Please pick a date.":!/^\d{10}$/.test(g("fPhone"))?"Mobile number is required (10 digits).":!g("fName")?"Customer name is required.":!(cost>0)?"Cost is required.":(catVal!=="Bespoke Coat"&&!g("fRs"))?"Rental start date is required.":(catVal!=="Bespoke Coat"&&!g("fRr"))?"Rental return date is required.":(!editId&&adv>cost)?"Advance cannot exceed cost.":bad.length?"Unknown item ID: "+bad.join(", ")+" (see the Inventory tab).":(g("fRs")&&g("fRr")&&g("fRr")<g("fRs"))?"Return date is before the start date.":"";
   if(!err&&clash.length){const k=clash.join("|");if(warned!==k){warned=k;err="⚠ Double booking: "+clash.join("; ")+". Click again to book anyway."}}
   NC=0;$("msg").className="err";$("gm").style.display="none";$("msg").textContent=err;if(err)return;warned="";if(!catsAll().includes(catVal)||!CATS.includes(catVal)){if(!CATS.includes(catVal))CATS.push(catVal);if(!CATX.includes(catVal)&&!BASE_CATS.includes(catVal)){CATX.push(catVal);sv("crt_cats",CATX)}}
   const o={date:g("fDate"),phone:g("fPhone"),name:g("fName"),cat:catVal,rs:g("fRs"),rr:g("fRr"),pt:g("fPt"),cost,it};
   if(editId)saveEdit(o);
   else{o.id=rows.reduce((m,r)=>Math.max(m,r.id),0)+1;o.ts=new Date().toISOString();o.by=meName();o.pays=adv>0?[{d:g("fPd")||o.date,a:adv,k:adv>=cost?"payment":"advance",m:o.pt}]:[];o.adv=0;if(xc>0)o.extras=[{d:g("fDate"),a:xc,n:"Added at order"}];sync(o);
-    if(o.cat==="New Coat"){o.stage="Measured";o.deliv="";NC=o.id}rows.push(o)}
+    if(o.cat==="Bespoke Coat"){o.stage="Measured";o.deliv="";o.mo=moNext();NC=o.id}rows.push(o)}
   save();["fPhone","fName","fRs","fRr","fCost","fAdv","fPd","fIt"].forEach(i=>$(i).value="");$("fCatN").value="";endEdit();calc();fillCats();$("fCat").value=catVal;catChg();renderTx();
-  if(NC){$("msg").className="note";$("msg").textContent="Saved. This New Coat order is now in the Measurements tab.";$("gm").style.display=""}
+  if(NC){$("msg").className="note";$("msg").textContent="Saved. This Bespoke Coat order is now in the Measurements tab. Measurement order number: "+((rows.find(x=>x.id===NC)||{}).mo||"")+" (you can search it in Search Order).";$("gm").style.display=""}
 }
 function saveEdit(o){
   const r=rows.find(x=>x.id===editId);if(!r)return;o.adv=r.adv;o.pd=r.pd;
   const s=(k,v)=>k==="cost"||k==="adv"||k==="dep"?rs(v||0):/^\d{4}-/.test(v)?fd(v):(v||"blank");
   const ch=FL.filter(f=>(r[f[0]]||"")!==(o[f[0]]||"")).map(f=>f[1]+": "+s(f[0],r[f[0]])+" → "+s(f[0],o[f[0]]));
   if((r.it||[]).join()!==o.it.join())ch.push("Items: "+((r.it||[]).join(", ")||"none")+" → "+(o.it.join(", ")||"none"));
-  if(ch.length){logR(r,ch.join("; "));Object.assign(r,o);if(r.cat==="New Coat"&&r.stage===undefined){r.stage="Measured";r.deliv=""}sync(r)}
+  if(ch.length){logR(r,ch.join("; "));Object.assign(r,o);if(r.cat==="Bespoke Coat"&&r.stage===undefined){r.stage="Measured";r.deliv=""}sync(r)}
 }
 function startEdit(id){
   const r=rows.find(x=>x.id===id);if(!r)return;editId=id;show("tx");
   const m={fDate:"date",fPhone:"phone",fName:"name",fCat:"cat",fRs:"rs",fRr:"rr",fPt:"pt",fCost:"cost",fAdv:"adv"};
   for(const k in m)$(k).value=r[m[k]]||"";
-  $("fIt").value=(r.it||[]).join(", ");$("fPd").value=pdate(r);$("fAdv").disabled=true;$("fPd").disabled=true;$("fXc").disabled=true;$("fXc").value="";calc();warned="";
+  $("fIt").value=(r.it||[]).join(", ");ensureOpt("fCat",r.cat);ensureOpt("fPt",r.pt);$("fCat").value=r.cat||"";$("fPt").value=r.pt||"";itRender();$("fPd").value=pdate(r);$("fAdv").disabled=true;$("fPd").disabled=true;$("fXc").disabled=true;$("fXc").value="";calc();warned="";
   $("fTitle").textContent="Edit Order "+pad(id)+" (payments are managed in Search Order)";$("fBtn").textContent="Save Changes";$("fCancel").style.display="inline-block";scrollTo({top:0,behavior:"smooth"});
 }
-function endEdit(){editId=null;$("fXc").disabled=false;$("fXc").value="";$("fAdv").disabled=false;$("fPd").disabled=false;$("fDate").value=isoLocal(new Date());$("fTitle").textContent="New Transaction";$("fBtn").textContent="Add Transaction";$("fCancel").style.display="none"}
+function endEdit(){editId=null;try{itRender()}catch(e){}$("fXc").disabled=false;$("fXc").value="";$("fAdv").disabled=false;$("fPd").disabled=false;$("fDate").value=isoLocal(new Date());$("fTitle").textContent="New Transaction";$("fBtn").textContent="Add Transaction";$("fCancel").style.display="none"}
 function cancelEdit(){["fPhone","fName","fRs","fRr","fCost","fAdv","fPd","fIt"].forEach(i=>$(i).value="");endEdit();calc();$("msg").textContent=""}
 
 /* inventory + calendar */
@@ -810,8 +836,8 @@ function renderInv(){
   const days=Array.from({length:14},(_,i)=>addDays($("cS").value,i));
   $("calT").innerHTML="<thead><tr><th>Item</th>"+days.map(d=>`<th>${d.slice(8)}<br>${MN[+d.slice(5,7)-1]}</th>`).join("")+"</tr></thead><tbody>"+INV.map(v=>`<tr><td style="text-align:left"><b>${v.id}</b> ${esc(itLbl(v))}</td>`+days.map(d=>{const r=bk(v.id,d);return `<td>${r?`<span class="bk" title="Order ${pad(r.id)} — ${esc(r.name)}">${r.id}</span>`:""}</td>`}).join("")+"</tr>").join("")+"</tbody>";
 }
-const types=()=>[...new Set(["Coat","Shoe","Tie",...INV.map(v=>v.type)])];
-function fillTypes(){const sel=$("iT"),cur=sel.value;sel.innerHTML=types().map(x=>`<option>${esc(x)}</option>`).join("")+`<option value="__new">➕ Add a new type…</option>`;if(cur&&(types().includes(cur)||cur==="__new"))sel.value=cur;typeChg()}
+let ITX=ld("crt_itx",null)||[];const types=()=>[...new Set(["Coat","Shoe","Tie",...ITX,...INV.map(v=>v.type)])];
+function fillTypes(){const sel=$("iT"),cur=sel.value;sel.innerHTML=typesPick().map(x=>`<option>${esc(x)}</option>`).join("")+`<option value="__new">➕ Add a new type…</option>`;if(cur&&(typesPick().includes(cur)||cur==="__new"))sel.value=cur;typeChg()}
 function typeChg(){$("iNw").style.display=$("iT").value==="__new"?"":"none"}
 function pfx(ty){const ex=INV.find(v=>v.type===ty);if(ex)return ex.id.split("-")[0];
   const used=new Set(INV.map(v=>v.id.split("-")[0])),w=ty.replace(/[^A-Za-z]/g,"").toUpperCase();
@@ -831,31 +857,32 @@ function delItem(id,b){
   if(!b.dataset.sure){b.dataset.sure=1;b.textContent="Sure? Click again";return m("Click Remove again to confirm deleting "+id+".")}
   INV=INV.filter(v=>v.id!==id);saveX();$("iM").textContent="";renderInv()}
 
-/* measurements: New Coat orders + measurement database */
+/* measurements: Bespoke Coat orders + measurement database */
 const GF={Shirt:["Neck","Chest","Waist","Shoulder","Sleeve length","Shirt length","Cuff"],Coat:["Chest","Waist","Hip","Shoulder","Sleeve length","Coat length","Neck","Back width"],"Inner Coat":["Chest","Waist","Shoulder","Length","Neck"],Trouser:["Waist","Hip","Thigh","Knee","Inseam","Outseam","Bottom opening"]};
+{const sg=ld("crt_gf",null);if(sg){Object.keys(GF).forEach(k=>delete GF[k]);Object.assign(GF,sg)}}
 let msGar="Coat",NC=0,msName="";
-const gs=p=>{const g=(CU[p]||{}).g||{};return Object.keys(g).filter(k=>Object.keys(g[k]).length)};
+const gs=p=>{const g=(CU[p]||{}).g||{};return Object.keys(g).filter(k=>GF[k]&&Object.keys(g[k]).length)};
 function renderTail(){
-  const L=live().filter(r=>r.cat==="New Coat"),sg=r=>r.stage||"Measured";
+  fixMo();const L=live().filter(r=>r.cat==="Bespoke Coat"),sg=r=>r.stage||"Measured";
   const ready=L.filter(r=>sg(r)==="Stitching Done"&&!r.notified),wait=L.filter(r=>sg(r)==="Fitting");
-  $("ntL").innerHTML=(ready.length||wait.length)?`<div class="wrap"><table style="min-width:0">${ready.map(r=>`<tr><td>${pad(r.id)}</td><td>${esc(r.name)}</td><td>${r.phone}</td><td>Ready to collect${bal(r)>0?" · balance "+rs(bal(r)):""}</td><td><button class="btn" style="padding:5px 12px" onclick="ntOpen(${r.id})">Send WhatsApp</button></td></tr>`).join("")}${wait.map(r=>`<tr><td>${pad(r.id)}</td><td>${esc(r.name)}</td><td>${r.phone}</td><td>Fitting stage</td><td><button class="btn alt" style="padding:5px 12px" onclick="ntOpen(${r.id})">Fitting reminder</button></td></tr>`).join("")}</table></div>`:`<div class="note" style="margin:0">No customers are waiting for a notice right now. Use <b>Notify</b> on any order below.</div>`;
-  $("tK").innerHTML=STG.map(x=>`<div class="kpi" style="background:var(--foot);color:#fff"><small>${x.toUpperCase()}</small><b>${L.filter(r=>sg(r)===x).length}</b></div>`).join("");
+  $("ntL").innerHTML=(ready.length||wait.length)?`<div class="wrap"><table style="min-width:0">${ready.map(r=>`<tr><td>${pad(r.id)}</td><td>${esc(r.name)}</td><td>${r.phone}</td><td>${r.mo?r.mo+" · ":""}Ready to collect${bal(r)>0?" · balance "+rs(bal(r)):""}</td><td><button class="btn" style="padding:5px 12px" onclick="ntOpen(${r.id})">Send WhatsApp</button></td></tr>`).join("")}${wait.map(r=>`<tr><td>${pad(r.id)}</td><td>${esc(r.name)}</td><td>${r.phone}</td><td>Fitting stage</td><td><button class="btn alt" style="padding:5px 12px" onclick="ntOpen(${r.id})">Fitting reminder</button></td></tr>`).join("")}</table></div>`:`<div class="note" style="margin:0">No customers are waiting for a notice right now. Use <b>Notify</b> on any order below.</div>`;
+  $("tK").innerHTML=STG.map(x=>`<div class="kpi" style="background:var(--foot);color:#fff"><small>${stl(x).toUpperCase()}</small><b>${L.filter(r=>sg(r)===x).length}</b></div>`).join("");
   L.sort((a,b)=>(sg(a)==="Delivered")-(sg(b)==="Delivered")||((a.deliv||"9999")<(b.deliv||"9999")?-1:1));
-  tbl("tlT",["Order Number","Customer","Phone","Stage","Delivery Date",H("Balance",1),"Customer notified","Actions"],L.map(r=>{
-    const nt=sg(r)==="Stitching Done"&&!r.notified;
-    return `<tr><td>${pad(r.id)}</td><td>${esc(r.name)}</td><td>${r.phone}</td><td><select onchange="setStage(${r.id},this.value)" style="min-width:150px">${STG.map(x=>`<option${x===sg(r)?" selected":""}>${x}</option>`).join("")}</select></td><td><input type="date" value="${r.deliv||""}" onchange="setDeliv(${r.id},this.value)" style="min-width:140px"></td><td class="n">${rs(bal(r))}</td><td>${r.notified?"✓ "+fd(r.notified):"—"}</td><td><button class="x" style="color:var(--teal)" onclick="openMs(${r.id})">Measurements</button> <button class="x" style="color:${nt?"var(--ok)":"var(--navy)"}${nt?";font-weight:800":""}" onclick="ntOpen(${r.id})">${nt?"Send ready notice":"Notify"}</button></td></tr>`}).join(""));
+  tbl("tlT",["Order Number","Customer","Action",H("Balance",1),"Delivery Date","WhatsApp message","Measurements"],L.map(r=>{
+    const nt=sg(r)==="Stitching Done"&&!r.notified,SL=STG.includes(sg(r))?STG:[...STG,sg(r)];
+    return `<tr><td>${pad(r.id)}<br><b style="color:var(--teal)">${r.mo||""}</b></td><td>${esc(r.name)}<br><small style="color:var(--mute)">${r.phone}</small></td><td><select onchange="setStage(${r.id},this.value)" style="min-width:160px">${SL.map(x=>`<option value="${esc(x)}"${x===sg(r)?" selected":""}>${esc(stl(x))}</option>`).join("")}</select></td><td class="n">${rs(bal(r))}</td><td><input type="date" value="${r.deliv||""}" onchange="setDeliv(${r.id},this.value)" style="min-width:130px"></td><td style="white-space:nowrap"><select id="tm${r.id}" style="min-width:140px;width:150px">${TM.map((m,i)=>`<option value="${i}"${i===tmDef(r)?" selected":""}>${m[0]}</option>`).join("")}</select> <button class="wab" style="${nt?"box-shadow:0 0 0 3px rgba(31,170,89,.35)":""}" onclick="tmSend(${r.id})">WhatsApp</button><br><small style="color:var(--mute)">${r.notified?"✓ Ready notice sent "+fd(r.notified):"Not notified yet"}</small></td><td><button class="x" style="color:var(--teal)" onclick="openMs(${r.id})">Edit measurements</button><br><button class="x" style="color:var(--navy)" onclick="msPrintP('${r.phone}')">Print</button></td></tr>`}).join(""));
   const q=($("mQ").value||"").trim().toLowerCase(),map={};
-  rows.forEach(r=>{if(r.cat!=="New Coat"&&!CU[r.phone])return;const c=map[r.phone]||(map[r.phone]={phone:r.phone,name:r.name,n:0,last:""});
-    if(r.cat==="New Coat")c.n++;if(r.date>=c.last){c.last=r.date;c.name=r.name}});
+  rows.forEach(r=>{if(r.cat!=="Bespoke Coat"&&!CU[r.phone])return;const c=map[r.phone]||(map[r.phone]={phone:r.phone,name:r.name,n:0,last:""});
+    if(r.cat==="Bespoke Coat")c.n++;if(r.date>=c.last){c.last=r.date;c.name=r.name}});
   Object.keys(CU).forEach(ph=>{if(!map[ph])map[ph]={phone:ph,name:CU[ph].name||ph,n:0,last:""}});
   const D=Object.values(map).filter(c=>!q||c.name.toLowerCase().includes(q)||c.phone.includes(q)).sort((a,b)=>a.name<b.name?-1:1);
-  tbl("mdT",["Customer","Phone",H("New Coat orders",1),"Garments measured","Last updated","Actions"],D.length?D.map(c=>`<tr><td>${esc(c.name)}</td><td>${c.phone}</td><td class="n">${c.n}</td><td>${gs(c.phone).join(", ")||`<span style="color:var(--mute)">None yet</span>`}</td><td>${fd((CU[c.phone]||{}).u)}</td><td><button class="x" style="color:var(--teal)" onclick="openMsP('${c.phone}')">${gs(c.phone).length?"View / edit":"Add measurements"}</button>${ntLatest(c.phone)?` <button class="x" style="color:var(--ok)" onclick="ntOpen(${ntLatest(c.phone)})">Notify</button>`:""}</td></tr>`).join(""):`<tr><td colspan="6" style="text-align:center;color:var(--mute)">No customers yet.</td></tr>`);
+  tbl("mdT",["Customer","Phone",H("Bespoke Coat orders",1),"Garments measured","Last updated","Actions"],D.length?D.map(c=>`<tr><td>${esc(c.name)}</td><td>${c.phone}</td><td class="n">${c.n}</td><td>${gs(c.phone).join(", ")||`<span style="color:var(--mute)">None yet</span>`}</td><td>${fd((CU[c.phone]||{}).u)}</td><td><button class="x" style="color:var(--teal)" onclick="openMsP('${c.phone}')">${gs(c.phone).length?"View / edit":"Add measurements"}</button>${gs(c.phone).length?` <button class="x" style="color:var(--navy)" onclick="msPrintP('${c.phone}')">Print</button>`:""}${ntLatest(c.phone)?` <button class="x" style="color:var(--ok)" onclick="ntOpen(${ntLatest(c.phone)})">Notify</button>`:""}</td></tr>`).join(""):`<tr><td colspan="6" style="text-align:center;color:var(--mute)">No customers yet.</td></tr>`);
 }
 function setStage(id,v){const r=rows.find(x=>x.id===id);logR(r,"Stage: "+(r.stage||"Measured")+" → "+v);r.stage=v;save();renderTail();if(v==="Stitching Done"&&!r.notified)stageWa(id)}
 function setDeliv(id,v){const r=rows.find(x=>x.id===id);logR(r,"Delivery date: "+(fd(r.deliv)||"blank")+" → "+(fd(v)||"blank"));r.deliv=v;save()}
 function stageWa(id){wa(id);$("waS").value=4;waFill()}
 function ntOpen(id){const r=rows.find(x=>x.id===id);if(!r)return;const g=r.stage||"Measured";wa(id);$("waS").value=g==="Stitching Done"||g==="Delivered"?4:g==="Fitting"?5:6;waFill()}
-function ntLatest(ph){const L=rows.filter(r=>r.phone===ph&&r.cat==="New Coat"&&!r.cx).sort((a,b)=>b.id-a.id);return L[0]?L[0].id:0}
+function ntLatest(ph){const L=rows.filter(r=>r.phone===ph&&r.cat==="Bespoke Coat"&&!r.cx).sort((a,b)=>b.id-a.id);return L[0]?L[0].id:0}
 function waSent(){const r=rows.find(x=>x.id===waId);if(!r)return;const k=+$("waS").value;logR(r,"WhatsApp opened: "+WT[k][0]);if(k===4)r.notified=isoLocal(new Date());save();if($("tail").classList.contains("on"))renderTail()}
 function custName(p){const r=[...rows].reverse().find(x=>x.phone===p);if(r)return r.name;const c=CU[p];return c&&c.name||""}
 function openMsP(p){msP=p;msName=custName(p)||p;$("msT").textContent=msName+" · "+p;$("msGs").innerHTML=Object.keys(GF).map(g=>`<option>${g}</option>`).join("");
@@ -954,7 +981,7 @@ function dlRp(){dlFile({name:"Report_"+isoLocal(new Date())+".html",text:"<!doct
 
 /* backup / restore now include inventory, expenses and measurements */
 function bkFiles(){const n="CoatBiz_Backup_"+isoLocal(new Date());
-  return[{name:n+".json",text:JSON.stringify({app:"coat-business-manager",version:2,saved:new Date().toISOString(),rows,inv:INV,exp:EXP,cu:CU,ecat:ECAT,shop:SHOP,cats:CATX},null,1)},{name:n+".csv",text:"\uFEFF"+exportCSV(rows,"",true)}]}
+  return[{name:n+".json",text:JSON.stringify({app:"coat-business-manager",version:2,saved:new Date().toISOString(),rows,inv:INV,exp:EXP,cu:CU,ecat:ECAT,shop:SHOP,cats:CATX,opt:{pm:PM,spm:SPM,spt:SPT,itx:ITX,stgx:STGX,gf:GF,hide:HID,munit:MU}},null,1)},{name:n+".csv",text:"\uFEFF"+exportCSV(rows,"",true)}]}
 function pickRestore(e){
   const f=e.target.files[0];if(!f)return;const rd=new FileReader();
   rd.onload=()=>{try{
@@ -964,10 +991,10 @@ function pickRestore(e){
   }catch(x){$("bkMsg").className="err";$("bkMsg").textContent="That file is not a valid backup."}};
   rd.readAsText(f);e.target.value="";
 }
-function doRestore(){rows=pend;rows.forEach(norm);if(pendX){if(pendX.inv)INV=pendX.inv;if(pendX.exp)EXP=pendX.exp;if(pendX.cu)CU=pendX.cu;if(pendX.ecat)ECAT=pendX.ecat;if(pendX.shop){SHOP=pendX.shop;migShop()}if(pendX.cats){CATX=pendX.cats;CATS=[...new Set([...BASE_CATS,...CATX])]}migX()}
+function doRestore(){rows=pend;rows.forEach(norm);if(pendX){if(pendX.inv)INV=pendX.inv;if(pendX.exp)EXP=pendX.exp;if(pendX.cu)CU=pendX.cu;if(pendX.ecat)ECAT=pendX.ecat;if(pendX.opt)restoreOpt(pendX.opt);if(pendX.shop){SHOP=pendX.shop;migShop()}if(pendX.cats){CATX=pendX.cats;CATS=[...new Set([...BASE_CATS,...CATX])]}migX()}
   pend=null;pendX=null;save();saveX();$("rsBtn").style.display="none";$("bkMsg").className="note";$("bkMsg").textContent="Backup restored.";bar();renderTx()}
 /* shop sales: branded shirts, socks, shoes */
-const SPT=["Shirt","Socks","Shoes"];
+const SPT=ld("crt_spt",null)||["Shirt","Socks","Shoes"];
 let rcName="",CART=[];
 let SHOP=ld("crt_shop",null)||{prod:[],sales:[]};
 function migShop(){SHOP.prod.forEach(p=>{if(p.cost===undefined)p.cost=0})}migShop();
@@ -975,7 +1002,7 @@ const saleProfit=x=>x.total-x.lines.reduce((t,l)=>t+l.qty*(l.cost!=null?l.cost:(
 const saveS=()=>sv("crt_shop",SHOP);
 const pdesc=p=>p.brand+" "+p.type+[p.size,p.color].filter(Boolean).map(x=>" · "+x).join("");
 const stypes=()=>[...new Set([...SPT,...SHOP.prod.map(p=>p.type)])];
-function fillSt(){const sel=$("spT"),cur=sel.value;sel.innerHTML=stypes().map(x=>`<option>${esc(x)}</option>`).join("")+`<option value="__new">➕ Add a new type…</option>`;if(cur&&(stypes().includes(cur)||cur==="__new"))sel.value=cur;stChg()}
+function fillSt(){const sel=$("spT"),cur=sel.value;sel.innerHTML=stypesPick().map(x=>`<option>${esc(x)}</option>`).join("")+`<option value="__new">➕ Add a new type…</option>`;if(cur&&(stypesPick().includes(cur)||cur==="__new"))sel.value=cur;stChg()}
 function stChg(){$("spNw").style.display=$("spT").value==="__new"?"":"none"}
 function spfx(ty){const ex=SHOP.prod.find(p=>p.type===ty);if(ex)return ex.id.split("-")[0];
   const used=new Set(SHOP.prod.map(p=>p.id.split("-")[0])),w=ty.replace(/[^A-Za-z]/g,"").toUpperCase();
@@ -1138,7 +1165,7 @@ function shopDoc(){
     {table:{heads:["Receipt","Date","Customer","Items","Total","Profit","Status"],align:["l","l","l","l","r","r","l"],rows:S.map(x=>[x.no,fd(x.date),x.name||"-",x.lines.map(l=>l.qty+" x "+l.desc).join("; "),rs(x.total),x.void?"-":rs(saleProfit(x)),x.void?"VOID":"Paid"])}},
     {h:"Current stock"},{table:{heads:["ID","Item","Cost","Price","Stock","Value at cost"],align:["l","l","r","r","r","r"],rows:SHOP.prod.map(p=>[p.id,pdesc(p),rs(p.cost||0),rs(p.price),String(p.stock),rs(p.stock*(p.cost||0))]),foot:[["TOTAL","","","",String(units),rs(val)]]}}]}}
 function rcPdfDoc(r){const s=status(r);return{name:"Receipt_"+pad(r.id),title:"Order Receipt",blocks:[
-  {kv:[["Order No.",pad(r.id)],["Date",fd(r.date)],["Entered at",fts(entered(r))],["Customer",r.name],["Phone",r.phone],["Category",r.cat],["Rental start",fd(r.rs)],["Rental return",fd(r.rr)],["Payment type",r.pt]]},{h:"Amounts"},
+  {kv:[["Order No.",pad(r.id)],...(r.mo?[["Measurement order no.",r.mo]]:[]),["Date",fd(r.date)],["Entered at",fts(entered(r))],["Customer",r.name],["Phone",r.phone],["Category",r.cat],["Rental start",fd(r.rs)],["Rental return",fd(r.rr)],["Payment type",r.pt]]},{h:"Amounts"},
   {kv:[["Total cost",rs(r.cost)],["Advance paid",rs(r.adv)],["Status",s[0]],["Payment received date",fd(pdate(r))]]},
   {p:"Please return rented items on or before the return date. Thank you for choosing "+BIZ.name+" - "+BIZ.tag+"."}]}}
 function salePdfDoc(x){return{name:"Sale_"+x.no,title:"Sales Receipt"+(x.void?" (VOID)":""),blocks:[
@@ -1146,11 +1173,11 @@ function salePdfDoc(x){return{name:"Sale_"+x.no,title:"Sales Receipt"+(x.void?" 
   {table:{heads:["Item","Qty","Price","Total"],align:["l","r","r","r"],rows:x.lines.map(l=>[l.desc,String(l.qty),rs(l.price),rs(l.qty*l.price)])}},
   {kv:(x.disc>0?[["Subtotal",rs(x.total+x.disc)],["Discount","- "+rs(x.disc)]]:[]).concat([["Total paid",rs(x.total)]])},
   {p:"Thank you for shopping with "+BIZ.name+" - "+BIZ.tag+"."}]}}
-let CATX=ld("crt_cats",[]);const BASE_CATS=["Coat Rent","New Coat","Shoe Rent","Tie Rent","Full Wedding Coat Rent","Other Customs"];
+let CATX=ld("crt_cats",[]);const BASE_CATS=["Coat Rent","Bespoke Coat","Shoe Rent","Tie Rent","Full Wedding Coat Rent","Other Customs"];
 CATS=[...new Set([...BASE_CATS,...CATX])];
 const catsAll=()=>[...new Set([...CATS,...rows.map(r=>r.cat)])];
-function fillCats(){const sel=$("fCat"),cur=sel.value;sel.innerHTML=catsAll().map(c=>`<option>${esc(c)}</option>`).join("")+`<option value="__new">➕ Add a new category…</option>`;if(cur&&(catsAll().includes(cur)||cur==="__new"))sel.value=cur;catChg()}
-function catChg(){$("fCatNw").style.display=$("fCat").value==="__new"?"":"none"}
+function fillCats(){const sel=$("fCat"),cur=sel.value;sel.innerHTML=catsPick().map(c=>`<option>${esc(c)}</option>`).join("")+`<option value="__new">➕ Add a new category…</option>`;if(cur&&(catsPick().includes(cur)||cur==="__new"))sel.value=cur;catChg()}
+function catChg(){$("fCatNw").style.display=$("fCat").value==="__new"?"":"none";document.querySelectorAll(".rq").forEach(e=>e.style.display=$("fCat").value==="Bespoke Coat"?"none":"")}
 /* additional charges, reset */
 function addExtra(id){const r=rows.find(x=>x.id===id),e=$("xe"+id);if(!r||r.cx)return;const a=Math.floor(+$("xa"+id).value),n=$("xn"+id).value.trim();
   if(!(a>0)){e.textContent="Enter the extra amount.";return}
@@ -1179,10 +1206,10 @@ async function doLogin(){
   const u=$("lgU").value.trim().toLowerCase(),r=USERS.find(x=>x.u===u);
   if(r&&await hpw($("lgP").value,r.s)===r.h){LGF={n:0,until:0};ME={user:r.u,role:r.role};$("lgP").value="";$("lg").classList.add("off");afterLogin()}
   else{LGF.n++;if(LGF.n>=5){LGF={n:0,until:t+60000}}e.textContent="Wrong username or password.";const c=document.querySelector("#lg .card");if(c&&c.classList){c.classList.remove("shake");void c.offsetWidth;c.classList.add("shake")}}}
-function logout(){ME=null;$("lgU").value="";$("lgP").value="";$("lgE").textContent="";$("lg").classList.remove("off");closeM("usm");closeM("gdm");closeM("rst");setTimeout(()=>{try{$("lgU").focus()}catch(e){}},50)}
+function logout(){ME=null;document.body.classList.remove("adm");closeM("opm");$("lgU").value="";$("lgP").value="";$("lgE").textContent="";$("lg").classList.remove("off");closeM("usm");closeM("gdm");closeM("rst");setTimeout(()=>{try{$("lgU").focus()}catch(e){}},50)}
 function afterLogin(){
-  const a=ME.role==="admin";$("hMe").textContent=ME.user;$("hUsr").style.display="";$("hRst").disabled=ME.user!=="admin";$("hRst").title=ME.user==="admin"?"":"Only the main admin account can reset data";
-  $("hDrv").style.display=(window.mrg&&window.mrg.drive&&ME.user==="admin")?"":"none";
+  const a=ME.role==="admin";document.body.classList[a?"add":"remove"]("adm");$("hMe").textContent=ME.user;$("hUsr").style.display="";$("hRst").disabled=ME.user!=="admin";$("hRst").title=ME.user==="admin"?"":"Only the main admin account can reset data";
+  $("hDrv").style.display=ME.user==="admin"?"":"none";
   if(window.mrg&&window.mrg.drive&&ME.user==="admin")mrg.drive.status().then(s=>{if(!s.connected)openDrive()});
   hpw("admin",(USERS.find(x=>x.u==="admin")||{}).s||"").then(h=>{const ad=USERS.find(x=>x.u==="admin");if(a&&ad&&ad.h===h)toast("Tip: change the default admin password in Users.")})}
 function openUsers(){$("usE").textContent="";$("usNp").value="";$("usWho").textContent="Logged in as "+ME.user+" ("+ME.role+")";$("usAdm").style.display=ME.role==="admin"?"":"none";usDraw();$("usm").classList.add("on")}
@@ -1208,8 +1235,8 @@ async function gdRefresh(){const s=await mrg.drive.status();$("gdOff").style.dis
   if(!$("gdEm").value&&s.email)$("gdEm").value=s.email;
   $("gdSt").textContent=s.connected?("Linked to "+s.email+(s.lastOk?" · last backup "+new Date(s.lastOk).toLocaleString():" · no backup yet")):"Not linked yet.";
   $("gdDis").style.display=ME&&ME.role==="admin"?"":"none";if(s.connected&&s.warn)gdErr(s.warn)}
-function openDrive(){if(!ME||ME.user!=="admin"){toast("Only the admin account can manage Google Drive.");return}if(!(window.mrg&&window.mrg.drive)){toast("Google Drive backup is available in the desktop app.");return}
-  gdErr("");$("gdT").innerHTML="";$("gdm").classList.add("on");gdRefresh()}
+function openDrive(){if(!ME||ME.user!=="admin"){toast("Only the admin account can manage Google Drive.");return}if(!(window.mrg&&window.mrg.drive)){gdErr("");$("gdSt").textContent="Browser version";$("gdWeb").style.display="";$("gdOff").style.display="none";$("gdOn").style.display="none";$("gdm").classList.add("on");return}
+  $("gdWeb").style.display="none";gdErr("");$("gdT").innerHTML="";$("gdm").classList.add("on");gdRefresh()}
 async function gdConn(){gdOk("Waiting for you to finish signing in, in the browser window…");
   const r=await mrg.drive.connect($("gdEm").value);if(!r.ok){gdErr(r.error);return}
   gdOk("Connected. Uploading the first backup…");await gdRefresh();const b=await mrg.drive.backupNow();if(b.ok)gdOk("Connected. First backup uploaded.");else gdErr("Connected, but the upload failed: "+b.error);gdRefresh();bkInfo()}
@@ -1231,6 +1258,130 @@ async function gdRestore(b){if(ME.role!=="admin")return;const r=await mrg.drive.
 try{const w=ld("crt_thw","80");$("thW").value=w}catch(e){}$("lgLogo").src=BIZ.logo;seedUsers().then(()=>{try{$("lgU").focus()}catch(e){}});
 function tickClk(){const e=$("clk");if(e)e.textContent="Now: "+fts(new Date().toISOString())}
 tickClk();if(typeof setInterval!=="undefined")setInterval(tickClk,1000);
+
+/* ===== v13 additions ===== */
+const stl=x=>({"Measured":"Measurements taken","Stitching":"Going on (stitching)","Fitting":"Ready for fitting","Stitching Done":"Ready to collect","Delivered":"Delivered"})[x]||x;
+/* editable dropdown lists (admin) */
+let HID=ld("crt_hide",{}),MU=ld("crt_munit","in");
+const pickL=(k,a)=>a.filter(x=>!(HID[k]||[]).includes(x));
+const catsPick=()=>pickL("cat",catsAll()),ecatsPick=()=>pickL("ecat",ecats()),typesPick=()=>pickL("itype",types()),stypesPick=()=>pickL("stype",stypes());
+function ensureOpt(id,v){const e=$(id);if(e&&v&&![...e.options].some(o=>o.value===v)){const o=document.createElement("option");o.textContent=v;o.value=v;e.appendChild(o)}}
+function fillPm(){[["fPt",PM],["sPm",SPM]].forEach(([id,a])=>{const e=$(id);if(!e)return;const c=e.value;e.innerHTML=a.map(x=>`<option>${esc(x)}</option>`).join("");if(c&&a.includes(c))e.value=c})}
+function restoreOpt(o){try{if(o.pm){PM.length=0;PM.push(...o.pm);sv("crt_pm",PM)}if(o.spm){SPM.length=0;SPM.push(...o.spm);sv("crt_spm",SPM)}if(o.spt){SPT.length=0;SPT.push(...o.spt);sv("crt_spt",SPT)}
+  if(o.itx){ITX.length=0;ITX.push(...o.itx);sv("crt_itx",ITX)}if(o.stgx){STGX.length=0;STGX.push(...o.stgx);STG.length=0;STG.push(...CORE_STG,...STGX);sv("crt_stgx",STGX)}
+  if(o.gf){Object.keys(GF).forEach(k=>delete GF[k]);Object.assign(GF,o.gf);sv("crt_gf",GF)}if(o.hide){HID=o.hide;sv("crt_hide",HID)}if(o.munit){MU=o.munit;sv("crt_munit",MU)}}catch(e){}}
+let OPK="",OPL=[],OPSEL="",OPSURE="";
+const OPS={
+ cat:{t:"Categories",h:1,all:()=>catsAll(),prot:["Bespoke Coat"],note:"Removing hides a category from the dropdown. Old orders keep it and reports still include it.",add(n){if(!CATS.includes(n))CATS.push(n);if(!CATX.includes(n)&&!BASE_CATS.includes(n)){CATX.push(n);sv("crt_cats",CATX)}}},
+ ecat:{t:"Expense categories",h:1,all:()=>ecats(),note:"Removing hides an expense category from the dropdown. Old expenses keep it.",add(n){if(!ECAT.includes(n)){ECAT.push(n);sv("crt_ecat",ECAT)}}},
+ itype:{t:"Inventory item types",h:1,all:()=>types(),note:"Removing hides a type from the dropdown. Existing inventory keeps it.",add(n){if(!ITX.includes(n)){ITX.push(n);sv("crt_itx",ITX)}}},
+ stype:{t:"Shop product types",h:1,all:()=>stypes(),note:"Removing hides a type from the dropdown. Past sales keep it.",add(n){if(!SPT.includes(n)){SPT.push(n);sv("crt_spt",SPT)}}},
+ pt:{t:"Payment types",arr:PM,key:"crt_pm",note:"Order payment methods."},
+ spm:{t:"Shop payment methods",arr:SPM,key:"crt_spm",note:"Shop sale payment methods."},
+ stg:{t:"Action (status) list",arr:STG,custom:STGX,key:"crt_stgx",prot:CORE_STG,note:"The five standard actions are needed by the system and cannot be removed. You can add your own, for example “Waiting for cloth”."},
+ gar:{t:"Garments (measurement items)",gar:1,note:"Add new garments and choose the measurement fields each one needs."}};
+function openOpts(k){if(!ME||ME.role!=="admin"){toast("Only an admin account can edit lists.");return}OPK=k;OPSURE="";OPSEL=k==="gar"?(typeof msGar!=="undefined"&&GF[msGar]?msGar:Object.keys(GF)[0]):"";$("opT").textContent="Edit list: "+OPS[k].t;$("opN").textContent=OPS[k].note;$("opE").textContent="";$("opA").value="";opDraw();$("opm").classList.add("on")}
+function opDraw(){const o=OPS[OPK];
+  OPL=o.gar?Object.keys(GF):o.h?o.all():o.arr.slice();
+  $("opL").innerHTML=OPL.map((x,i)=>{const hid=o.h&&(HID[OPK]||[]).includes(x),prot=(o.prot||[]).includes(x);
+    return `<tr><td${hid?' style="color:var(--mute);text-decoration:line-through"':""}>${esc(x)}${hid?" (hidden)":""}${prot?" · standard":""}</td><td style="text-align:right;white-space:nowrap">${o.gar?`<button class="btn alt" style="padding:5px 10px" onclick="opPick(${i})">${OPSEL===x?"Fields ▼":"Fields"}</button> `:""}${hid?`<button class="btn alt" style="padding:5px 10px" onclick="opShow(${i})">Show again</button>`:prot?"":`<button class="btn bad" style="padding:5px 10px" onclick="opRm(${i})">${OPSURE===x?"Sure?":"Remove"}</button>`}</td></tr>`}).join("");
+  $("opF").style.display=o.gar&&GF[OPSEL]?"":"none";if(o.gar&&GF[OPSEL]){$("opFg").textContent=OPSEL;$("opFl").innerHTML=GF[OPSEL].map((f,i)=>`<span class="chip2">${esc(f)}<button title="Remove" onclick="opFDel(${i})">×</button></span>`).join("")}}
+function opErr(t){$("opE").textContent=t||""}
+function opAdd(){opErr();const o=OPS[OPK];let n=$("opA").value.trim();if(!n)return opErr("Type the new option first.");if(n.length>40)return opErr("Keep it under 40 characters.");n=n[0].toUpperCase()+n.slice(1);
+  const ex=(o.gar?Object.keys(GF):o.h?o.all():o.arr).find(x=>x.toLowerCase()===n.toLowerCase());
+  if(ex){if(o.h&&(HID[OPK]||[]).includes(ex)){HID[OPK]=HID[OPK].filter(x=>x!==ex);sv("crt_hide",HID);$("opA").value="";opDraw();refreshLists();return}return opErr("That option already exists.")}
+  if(o.gar){opGarPre();GF[n]=["Length"];OPSEL=n;sv("crt_gf",GF)}else if(o.h)o.add(n);else{o.arr.push(n);if(o.custom){o.custom.push(n)}sv(o.key,o.custom||o.arr)}
+  $("opA").value="";opDraw();refreshLists()}
+function opRm(i){opErr();const o=OPS[OPK],x=OPL[i];if(OPSURE!==x){OPSURE=x;opDraw();return}OPSURE="";
+  if(o.gar){if(Object.keys(GF).length<=1)return opErr("Keep at least one garment.");opGarPre();delete GF[x];if(OPSEL===x)OPSEL=Object.keys(GF)[0];sv("crt_gf",GF)}
+  else if(o.h){if(pickL(OPK,o.all()).length<=1)return opErr("Keep at least one visible option.");HID[OPK]=[...(HID[OPK]||[]),x];sv("crt_hide",HID)}
+  else{if(o.arr.length<=1)return opErr("Keep at least one option.");o.arr.splice(o.arr.indexOf(x),1);if(o.custom){o.custom.splice(o.custom.indexOf(x),1)}sv(o.key,o.custom||o.arr)}
+  opDraw();refreshLists()}
+function opShow(i){const x=OPL[i];HID[OPK]=(HID[OPK]||[]).filter(y=>y!==x);sv("crt_hide",HID);opDraw();refreshLists()}
+function opPick(i){OPSEL=OPL[i];opDraw()}
+function opGarPre(){try{if($("mq").classList.contains("on")&&GF[msGar])msKeep()}catch(e){}}
+function opFAdd(){opErr();let n=$("opFa").value.trim();if(!n)return opErr("Type the measurement name first.");if(GF[OPSEL].some(f=>f.toLowerCase()===n.toLowerCase()))return opErr("That field already exists.");opGarPre();GF[OPSEL].push(n[0].toUpperCase()+n.slice(1));sv("crt_gf",GF);$("opFa").value="";opDraw();refreshLists()}
+function opFDel(i){opErr();if(GF[OPSEL].length<=1)return opErr("Keep at least one field.");opGarPre();GF[OPSEL].splice(i,1);sv("crt_gf",GF);opDraw();refreshLists()}
+function refreshLists(){try{fillCats();fillEc();fillTypes();fillSt();fillPm();itRender();
+  if($("mq").classList.contains("on")){$("msGs").innerHTML=Object.keys(GF).map(g=>`<option>${g}</option>`).join("");if(!GF[msGar])msGar=Object.keys(GF)[0];$("msGs").value=msGar;msLoad()}
+  if($("tail").classList.contains("on"))renderTail()}catch(e){}}
+/* item picker */
+function itArr(){return $("fIt").value.split(/[\s,]+/).map(x=>x.trim().toUpperCase()).filter(Boolean)}
+function itRender(){const a=itArr(),st=$("fRs").value,en=$("fRr").value;
+  $("fItChips").innerHTML=a.map(x=>{const v=INV.find(i=>i.id===x);return `<span class="chip2">${esc(x)}${v?" · "+esc(v.type+" "+itLbl(v)):" (unknown)"}<button title="Remove" onclick="itDel('${esc(x)}')">×</button></span>`}).join("");
+  const by={};INV.filter(v=>!a.includes(v.id)).forEach(v=>(by[v.type]=by[v.type]||[]).push(v));
+  $("fItPick").innerHTML=INV.length?`<option value="">＋ ${a.length?"Add another item":"Choose an item"}…</option>`+Object.keys(by).map(t=>`<optgroup label="${esc(t)}">${by[t].map(v=>`<option value="${v.id}">${v.id} · ${esc(itLbl(v)||v.type)}${conflicts([v.id],st,en,editId).length?"   ⚠ booked":""}</option>`).join("")}</optgroup>`).join(""):`<option value="">No items yet — add them in the Inventory tab</option>`}
+function itAdd(v){if(!v)return;const a=itArr();if(!a.includes(v))a.push(v);$("fIt").value=a.join(", ");warned="";itRender();$("fItPick").focus()}
+function itDel(x){$("fIt").value=itArr().filter(y=>y!==x).join(", ");warned="";itRender()}
+function fillDl(){itRender()}
+/* measurement order numbers */
+const moFmt=n=>"MO-"+String(n).padStart(6,"0");
+function moNext(){return moFmt(rows.reduce((m,r)=>Math.max(m,r.mo?(+r.mo.slice(3)||0):0),0)+1)}
+function fixMo(){let ch=0;rows.forEach(r=>{if(r.cat==="New Coat"){r.cat="Bespoke Coat";ch=1}});if(CATX.includes("New Coat")){CATX=CATX.map(x=>x==="New Coat"?"Bespoke Coat":x);sv("crt_cats",CATX)}if(CATS.includes("New Coat"))CATS=CATS.map(x=>x==="New Coat"?"Bespoke Coat":x);if((HID.cat||[]).includes("New Coat")){HID.cat=HID.cat.map(x=>x==="New Coat"?"Bespoke Coat":x);sv("crt_hide",HID)}rows.filter(r=>r.cat==="Bespoke Coat"&&!r.mo).sort((a,b)=>a.id-b.id).forEach(r=>{r.mo=moNext();ch=1});if(ch)save()}
+function doSearch(){fixMo();
+  const q=$("sQ").value.replace(/\s/g,""),id=/^\d{1,10}$/.test(q)?+q:-1,isMo=/^mo-?\d{1,6}$/i.test(q),mn=isMo?+q.replace(/^mo-?/i,""):-1;
+  found=q?rows.filter(r=>r.id===id||r.phone===q||(q.length>=4&&r.phone.includes(q))||(isMo&&r.mo&&+r.mo.slice(3)===mn)):[];
+  $("sRes").innerHTML=!q?"":!found.length?`<div class="card">No orders found for “${esc(q)}”.</div>`:found.map(card2).join("")}
+/* statuses + WhatsApp */
+const dv=r=>r.deliv?" Expected delivery date: "+fd(r.deliv)+".":"";
+const TM=[["Measurements taken",r=>`Dear ${r.name}, we have taken your measurements and your order is registered.${dv(r)} We will keep you informed. Thank you!`],
+["Stitching going on",r=>`Dear ${r.name}, your order is now being stitched.${dv(r)} We will let you know as soon as it is ready.`],
+["Ready for fitting",r=>`Dear ${r.name}, your coat is ready for fitting. Please visit us at a convenient time to try it on. Thank you!`],
+["Ready to collect",r=>`Dear ${r.name}, your order is ready to collect.${dv(r)}${bal(r)>0?" Balance to pay: "+rs(bal(r))+".":""} Please visit us at your convenience. Thank you!`],
+["Balance reminder",r=>`Dear ${r.name}, this is a friendly reminder that the balance of ${rs(bal(r))} for your order is now due. Thank you!`]];
+const tmText=(r,k)=>TM[k][1](r)+`\n\nOrder No: ${pad(r.id)}\nMeasurement Order No: ${r.mo||"-"}\n${BIZ.name}\nTel: ${BIZ.phones.join(" / ")}`;
+function tmDef(r){const g=r.stage||"Measured";return g==="Measured"?0:g==="Stitching"?1:g==="Fitting"?2:g==="Stitching Done"?3:g==="Delivered"?(bal(r)>0?4:3):1}
+function tmSend(id,k){const r=rows.find(x=>x.id===id);if(!r)return;fixMo();const e=$("tm"+id);k=k!==undefined?k:e?+e.value:tmDef(r);
+  const w=window.open("https://wa.me/"+r.phone.replace(/^0/,"94")+"?text="+encodeURIComponent(tmText(r,k)),"_blank");
+  if(w){try{w.opener=null}catch(x){}}else toast("The pop-up was blocked. Allow pop-ups for this page and try again.");
+  logR(r,"WhatsApp opened: "+TM[k][0]);if(k===3)r.notified=isoLocal(new Date());save();if($("tail").classList.contains("on"))renderTail()}
+function ntOpen(id){tmSend(id)}
+function stageWa(id){tmSend(id,3)}
+function setStage(id,v){const r=rows.find(x=>x.id===id);logR(r,"Stage: "+stl(r.stage||"Measured")+" → "+stl(v));r.stage=v;save();renderTail();if(v==="Stitching Done"&&!r.notified)toast("Marked “Ready to collect”. Press the green WhatsApp button to tell the customer.")}
+/* measurements: units, print */
+const toIn=v=>MU==="cm"?(parseFloat(v)/2.54):parseFloat(v),r2=n=>String(Math.round(n*100)/100);
+const dispV=v=>{if(v===undefined||v==="")return"";const n=parseFloat(v);if(isNaN(n))return String(v);return MU==="cm"?String(Math.round(n*2.54*10)/10):String(v)};
+function msLoad(){const c=CU[msP]||{},m=(c.g||{})[msGar]||{};
+  $("msG").innerHTML=GF[msGar].map((f,i)=>{const d=dispV(m[f]);return `<div><label>${esc(f)} (${MU})</label><input id="mf${i}" data-o="${esc(d)}" inputmode="decimal" value="${esc(d)}"></div>`}).join("");
+  $("mfN").value=c.n||"";$("msU").value=MU;$("msSaved").textContent=gs(msP).length?"Measurements saved for: "+gs(msP).join(", ")+" (stored safely; you can switch between inches and cm any time)":"No measurements saved yet."}
+function msKeep(){if(!GF[msGar])return;const old=((CU[msP]||{}).g||{})[msGar]||{},m={};
+  GF[msGar].forEach((f,i)=>{const el=$("mf"+i);if(!el)return;const v=el.value.trim();if(!v)return;
+    if(v===el.dataset.o&&old[f]!==undefined)m[f]=old[f];else if(MU==="cm"&&!isNaN(parseFloat(v)))m[f]=r2(toIn(v));else m[f]=v});
+  GF[msGar].length;Object.keys(old).forEach(k=>{if(!GF[msGar].includes(k))m[k]=old[k]});
+  if(!Object.keys(m).length&&!CU[msP]&&!$("mfN").value.trim())return;
+  const c=CU[msP]||(CU[msP]={g:{}});c.g=c.g||{};if(Object.keys(m).length)c.g[msGar]=m;else delete c.g[msGar];
+  if(!c.name)c.name=msName;c.n=$("mfN").value.trim();c.u=isoLocal(new Date());saveX()}
+function msUnit(){msKeep();MU=$("msU").value==="cm"?"cm":"in";sv("crt_munit",MU);msLoad()}
+function openMsP(p){msP=p;msName=custName(p)||p;$("msT").textContent=msName+" · "+p;$("msGs").innerHTML=Object.keys(GF).map(g=>`<option>${esc(g)}</option>`).join("");
+  msGar=gs(p)[0]||Object.keys(GF)[0];$("msGs").value=msGar;$("msU").value=MU;msLoad();$("mq").classList.add("on")}
+function msData(p){const c=CU[p]||{},g=c.g||{},L=live().filter(r=>r.phone===p&&r.cat==="Bespoke Coat").sort((a,b)=>b.id-a.id);
+  return{c,g,name:custName(p)||p,orders:L,gar:[...Object.keys(GF),...Object.keys(g).filter(k=>!GF[k])].filter(k=>g[k]&&Object.keys(g[k]).length)}}
+function msHtml(p){fixMo();const d=msData(p),o=d.orders[0];
+  return `<div style="text-align:center"><h2 style="margin:0;font-size:22px">${esc(BIZ.name)}</h2><div>${esc(BIZ.tag)}</div><div>${esc(BIZ.addr)} · Tel ${BIZ.phones.join(" / ")}</div></div><hr>
+  <h2 style="text-align:center;margin:6px 0 10px">Customer Measurements</h2>
+  <table><tr><th style="width:30%">Customer</th><td>${esc(d.name)}</td><th style="width:20%">Mobile</th><td>${p}</td></tr>
+  <tr><th>Order No.</th><td>${o?pad(o.id):"—"}</td><th>Measurement Order</th><td>${o&&o.mo?o.mo:"—"}</td></tr>
+  <tr><th>Printed</th><td>${fts(new Date().toISOString())}</td><th>Unit</th><td>${MU==="cm"?"Centimetres (cm)":"Inches (in)"}</td></tr></table>
+  ${d.gar.map(k=>`<h3>${esc(k)}</h3><table><tr><th>Measurement</th><th style="width:30%">Value (${MU})</th></tr>${[...(GF[k]||[]),...Object.keys(d.g[k]).filter(f=>!(GF[k]||[]).includes(f))].filter(f=>d.g[k][f]!==undefined&&d.g[k][f]!=="").map(f=>`<tr><td>${esc(f)}</td><td>${esc(dispV(d.g[k][f]))}</td></tr>`).join("")}</table>`).join("")||"<p>No measurements saved yet.</p>"}
+  ${d.c.n?`<h3>Notes</h3><p>${esc(d.c.n)}</p>`:""}
+  <p style="margin-top:28px">Customer signature: ____________________ &nbsp;&nbsp; Tailor: ____________________</p>`}
+function printA4(html){const t=$("thermal");t.innerHTML='<div class="th a4">'+html+'</div>';
+  const st=document.createElement("style");st.id="pgst";st.textContent="@media print{@page{size:A4;margin:12mm}html,body{background:#fff!important}}";document.head.appendChild(st);document.body.classList.add("th-print");
+  const done=()=>{document.body.classList.remove("th-print");const e=document.getElementById("pgst");if(e&&e.parentNode)e.parentNode.removeChild(e);t.innerHTML=""};
+  try{window.onafterprint=done;window.print()}catch(e){}setTimeout(done,30000)}
+function msPrint(){msKeep();printA4(msHtml(msP))}
+function msPrintP(p){if(!gs(p).length){toast("No measurements saved for this customer yet.");return}printA4(msHtml(p))}
+function msDoc(){msKeep();const d=msData(msP),o=d.orders[0],b=[{kv:[["Customer",d.name],["Mobile",msP],["Order No.",o?pad(o.id):"-"],["Measurement order",o&&o.mo?o.mo:"-"],["Printed",fts(new Date().toISOString())],["Unit",MU==="cm"?"Centimetres (cm)":"Inches (in)"]]}];
+  d.gar.forEach(k=>{b.push({h:k});b.push({kv:[...(GF[k]||[]),...Object.keys(d.g[k]).filter(f=>!(GF[k]||[]).includes(f))].filter(f=>d.g[k][f]!==undefined&&d.g[k][f]!=="").map(f=>[f,dispV(d.g[k][f])+" "+MU])})});
+  if(d.c.n)b.push({p:"Notes: "+d.c.n});if(!d.gar.length)b.push({p:"No measurements saved yet."});
+  return{name:"Measurements_"+msP,title:"Customer Measurements",blocks:b}}
+/* theme */
+function setTheme(t){t=t==="dark"?"dark":"light";try{document.documentElement.dataset.theme=t}catch(e){}sv("crt_theme",t);
+  [["thL","thL2"],["thD","thD2"]].forEach((ids,i)=>ids.forEach(id=>{const e=$(id);if(e)e.classList.toggle("on",(i===1)===(t==="dark"))}));
+  try{if(ME){const c=document.querySelector("nav .on");if(c)show(c.dataset.t)}}catch(e){}}
+/* Drive (browser) */
+function gdWebDl(){const f=bkFiles()[0];dlFile(f);toast("Backup file downloaded. Drag it into your Google Drive.")}
+fillPm();fixMo();setTheme(ld("crt_theme","light"));
 $("sQ").oninput=doSearch;
 $("fDate").value=isoLocal(new Date());
 $("hLogo").src=BIZ.logo;$("hContact").textContent="Mobile: "+BIZ.phones.join(" / ")+" · "+BIZ.addr;
