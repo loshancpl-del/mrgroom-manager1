@@ -373,6 +373,9 @@ table.utb{min-width:0;width:100%}.utb td{padding:6px 4px;border-bottom:1px solid
     <table class="utb" id="gdT" style="margin-top:8px"></table>
     <div class="row"><button class="btn alt" onclick="closeM('gdm')">Close</button></div>
   </div>
+  <div id="gdLoc" style="display:none;margin-top:14px;border-top:1px solid var(--line);padding-top:12px"><h3 style="margin:0 0 4px">Extra backup folder on this PC</h3><div class="note" id="gdLocT"></div>
+    <div class="note">Tip: install <b>Google Drive for desktop</b>, then choose a folder inside your Google Drive here (for example <i>My Drive › Mr GROOM Backups</i>). Every backup is copied there and Google Drive uploads it for you. No expiry, no sign-in needed in this app.</div>
+    <div class="row"><button class="btn" onclick="gdChoose()">Choose folder…</button></div></div>
   <div id="gdE" class="err" style="margin-top:8px"></div>
 </div></div>
 <div id="thermal" style="display:none"></div>
@@ -1236,7 +1239,7 @@ async function gdRefresh(){const s=await mrg.drive.status();$("gdOff").style.dis
   $("gdSt").textContent=s.connected?("Linked to "+s.email+(s.lastOk?" · last backup "+new Date(s.lastOk).toLocaleString():" · no backup yet")):"Not linked yet.";
   $("gdDis").style.display=ME&&ME.role==="admin"?"":"none";if(s.connected&&s.warn)gdErr(s.warn)}
 function openDrive(){if(!ME||ME.user!=="admin"){toast("Only the admin account can manage Google Drive.");return}if(!(window.mrg&&window.mrg.drive)){gdErr("");$("gdSt").textContent="Browser version";$("gdWeb").style.display="";$("gdOff").style.display="none";$("gdOn").style.display="none";$("gdm").classList.add("on");return}
-  $("gdWeb").style.display="none";gdErr("");$("gdT").innerHTML="";$("gdm").classList.add("on");gdRefresh()}
+  $("gdWeb").style.display="none";gdErr("");$("gdT").innerHTML="";$("gdm").classList.add("on");gdLocRefresh();gdRefresh()}
 async function gdConn(){gdOk("Waiting for you to finish signing in, in the browser window…");
   const r=await mrg.drive.connect($("gdEm").value);if(!r.ok){gdErr(r.error);return}
   gdOk("Connected. Uploading the first backup…");await gdRefresh();const b=await mrg.drive.backupNow();if(b.ok)gdOk("Connected. First backup uploaded.");else gdErr("Connected, but the upload failed: "+b.error);gdRefresh();bkInfo()}
@@ -1380,6 +1383,8 @@ function setTheme(t){t=t==="dark"?"dark":"light";try{document.documentElement.da
   [["thL","thL2"],["thD","thD2"]].forEach((ids,i)=>ids.forEach(id=>{const e=$(id);if(e)e.classList.toggle("on",(i===1)===(t==="dark"))}));
   try{if(ME){const c=document.querySelector("nav .on");if(c)show(c.dataset.t)}}catch(e){}}
 /* Drive (browser) */
+function gdLocRefresh(){try{const i=window.mrg.info();$("gdLoc").style.display="";$("gdLocT").textContent=i&&i.secondDir?"Copies are also saved to: "+i.secondDir:"No extra folder chosen yet. Backups are kept in Desktop\\MrGroom\\Backups."}catch(e){}}
+async function gdChoose(){try{await window.mrg.chooseSecond();gdLocRefresh();toast("Extra backup folder saved.")}catch(e){toast("Could not choose the folder.")}}
 function gdWebDl(){const f=bkFiles()[0];dlFile(f);toast("Backup file downloaded. Drag it into your Google Drive.")}
 fillPm();fixMo();setTheme(ld("crt_theme","light"));
 $("sQ").oninput=doSearch;
