@@ -200,6 +200,21 @@ test('thermal print: narrow receipt for orders and shop sales; PDF stays standar
   run(ctx, 'SHOP.sales.push({id:1,no:"S-1",date:"2026-10-26",name:"",pm:"Cash",disc:0,total:3000,lines:[{desc:"Socks",qty:2,price:1500}]}); showSale(1); $("thW").value="58"; printRc()');
   const h2 = ctx.$$('thermal').innerHTML; assert.ok(/SALES RECEIPT/.test(h2) && /2 x Rs\. 1,500/.test(h2) && /width:48mm/.test(h2));
 });
+test('Drive button only for the admin account; orders and sales carry date, time and user; notify message', async () => {
+  const { ctx } = loginCtx(); await run(ctx, 'seedUsers()');
+  run(ctx, '$("lgU").value="admin";$("lgP").value="admin"'); await run(ctx, 'doLogin()'); assert.strictEqual(ctx.$$('hDrv').style.display, '');
+  run(ctx, 'openUsers()'); run(ctx, '$("usU").value="boss";$("usP").value="pw1234";$("usR").value="admin"'); await run(ctx, 'usAdd()');
+  run(ctx, '$("fDate").value="2026-10-23";$("fPhone").value="0771234567";$("fName").value="Nimal";$("fCat").value="New Coat";$("fPt").value="Cash";$("fCost").value="45000";$("fAdv").value="15000";addTx();');
+  assert.strictEqual(run(ctx, 'rows[0].by'), 'admin'); assert.ok(/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d/.test(run(ctx, 'rows[0].ts')));
+  assert.ok(/\d\d:\d\d:\d\d/.test(run(ctx, 'fts(rows[0].ts)'))); assert.ok(/Entered \(date & time\)/.test(ctx.$$('txT').innerHTML));
+  assert.ok(/Entered At/.test(run(ctx, 'exportCSV(rows,"x",true)')));
+  assert.ok(/\d\d:\d\d:\d\d/.test(run(ctx, 'rcHtml(rows[0])')) && /Time/.test(run(ctx, 'thRc(rows[0])')));
+  run(ctx, 'setStage(1,"Stitching Done")'); assert.match(ctx.$$('waM').value, /your order 0000000001 is ready to collect/);
+  run(ctx, 'renderTail()'); assert.ok(/Send WhatsApp/.test(ctx.$$('ntL').innerHTML));
+  run(ctx, 'logout()'); run(ctx, '$("lgU").value="boss";$("lgP").value="pw1234"'); await run(ctx, 'doLogin()');
+  assert.strictEqual(run(ctx, 'ME.role'), 'admin'); assert.strictEqual(ctx.$$('hDrv').style.display, 'none'); run(ctx, 'openDrive()');
+  run(ctx, 'logout()');
+});
 test('reset data: password is "admin", nothing about it is shown, users survive the reset', async () => {
   const { ctx, store } = loginCtx(); await run(ctx, 'seedUsers()');
   run(ctx, '$("lgU").value="admin";$("lgP").value="admin"'); await run(ctx, 'doLogin()');
